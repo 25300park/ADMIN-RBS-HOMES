@@ -1,0 +1,666 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  /// 고유 아이디
+  id             Int       @id @default(autoincrement())
+  /// 사용자 ID
+  username       String?   @unique(map: "User_username_key") @db.VarChar(50)
+  /// 이메일
+  email          String?   @unique(map: "User_email_key") @db.VarChar(300)
+  /// 이메일 인증 여부
+  emailVerified  DateTime?
+  /// 사용자 프로필 이미지 URL 또는 경로
+  image          String?   @db.VarChar(500)
+  /// 비밀번호 해시 (선택적)
+  password       String?   @db.VarChar(255)
+  /// 비밀번호 원본 (선택적)
+  passwordOrigin String?   @db.VarChar(255)
+  /// 0: 관리자  1: 일반유저 2: 에이전트 (면허x) 3:브로커 4: 오너  20: 프리세일 가능 에이전트 30: 프리세일가능 브로커 40: 프리세일 가능 오너
+  level          Int       @default(1)
+  /// 이름
+  name           String?   @db.VarChar(50)
+  /// 페이스북 정보
+  facebook       String?   @db.VarChar(500)
+  /// -1: 정상 0: 정지 1: 탈퇴
+  status         Int       @default(-1)
+  /// 프리세일 가능여부 0: 불가능 1:가능
+  canPreSale     Int       @default(0)
+  /// 회사
+  company        String?   @db.VarChar(50)
+  /// 면허
+  license        String?   @db.VarChar(50)
+  /// 등록일
+  regdate        DateTime  @default(now())
+  /// 마지막 업데이트일
+  lastUpdate     DateTime?
+  /// 연락처
+  phone          String?   @db.VarChar(50)
+  /// 메모
+  memo           String?   @db.Text
+
+  // 관계 필드 추가
+  unit              Unit[]
+  account           Account[]
+  session           Session[]
+  favorites         Favorite[]
+  loginLog          LoginLog[]
+  unitViews         UnitViewLog[]
+  SiteVisitorLog    SiteVisitorLog[]
+  sentMessages         Message[]                  @relation("MessageSender")
+  receivedMessages     Message[]                  @relation("MessageRecipient")
+  messageTemplates     MessageTemplate[]          @relation("MessageTemplateCreator")
+  createdGroups        MessageGroup[]             @relation("MessageGroupCreator")
+  messageGroupMembers  MessageGroupMember[]       @relation("MessageGroupMember")
+  notifications        Notification[]             @relation("UserNotifications")
+  processedContacts Contact[]        @relation("ProcessedContacts")
+  userContacts      Contact[]        @relation("UserContacts")
+  processedComplain ComplainUnit[]   @relation("ProcessedComplain")
+  userComplain      ComplainUnit[]   @relation("UserComplain")
+
+  @@map("user")
+}
+
+model Account {
+  /// 고유 아이디
+  id                Int     @id @default(autoincrement())
+  /// 사용자 ID
+  userId            Int
+  /// OAuth 제공자 타입 (예: 구글, 페이스북)
+  type              String
+  /// OAuth 제공자 (예: 구글)
+  provider          String
+  /// OAuth 제공자 계정 ID
+  providerAccountId String
+  /// OAuth 리프레시 토큰
+  refreshToken      String? @db.Text
+  /// 토큰 권한 범위
+  scope             String?
+  /// 세션 상태
+  sessionState      String?
+  /// OAuth 액세스 토큰
+  access_token      String? @db.Text
+  /// ID 토큰
+  id_token          String? @db.Text
+  /// 토큰 타입 (예: Bearer)
+  token_type        String?
+  /// OAuth 액세스 토큰 만료 시간
+  expires_at        Int?
+
+  // 관계 추가
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId], map: "Account_provider_providerAccountId_key")
+  @@index([userId], map: "Account_userId_fkey")
+  @@map("account")
+}
+
+model Session {
+  /// 고유 아이디
+  id           Int      @id @default(autoincrement())
+  /// 세션 토큰
+  sessionToken String   @unique(map: "Session_sessionToken_key")
+  /// 사용자 ID
+  userId       Int
+  /// 세션 만료 시간
+  expires      DateTime
+
+  // 관계 추가
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Session_userId_fkey")
+  @@map("session")
+}
+
+model VerificationToken {
+  /// 이메일 또는 전화번호
+  identifier String
+  /// 토큰
+  token      String   @unique(map: "VerificationToken_token_key")
+  /// 만료 시간
+  expires    DateTime
+
+  @@unique([identifier, token], map: "VerificationToken_identifier_token_key")
+  @@map("verificationtoken")
+}
+
+model Notice {
+  /// 고유 아이디
+  id       Int      @id @default(autoincrement())
+  /// 제목
+  title    String   @db.VarChar(255)
+  /// 내용
+  contents String?  @db.Text
+  /// 상태
+  state    Int      @default(0)
+  /// 등록일
+  regdate  DateTime @default(now())
+
+  @@map("notice")
+}
+
+model Schedule {
+  /// 고유 아이디
+  id          Int       @id @default(autoincrement())
+  /// 유닛 ID
+  unitId      Int
+  /// 등록일
+  regdate     DateTime  @default(now())
+  /// 0: 신청 1:대기 2:확정 3:취소
+  status      Int       @default(0)
+  /// 미팅날짜
+  date        DateTime?
+  /// 이메일
+  email       String?   @db.VarChar(300)
+  /// 마지막 업데이트 시간
+  lastUpdate  DateTime  @default(now())
+  /// 제목
+  message     String?   @db.VarChar(255)
+  /// 연락처
+  mobile      String?   @db.VarChar(50)
+  regId       Int?
+  /// 신청 희망일
+  requestDate DateTime?
+  /// 직접 스케줄 추가시 유저아이디
+  userId      Int?
+  /// 유저 ID
+  username    String?   @db.VarChar(50)
+  /// 내용 
+  desc        String?   @db.VarChar(255)
+  /// 종료시간 없을시 allDay
+  endedAt     DateTime?
+  /// 위치
+  location    String?   @db.VarChar(255)
+  /// 시작시간 
+  startedAt   DateTime?
+  title       String?   @db.VarChar(100)
+  
+  @@map("schedule")
+}
+
+model Unit {
+  /// 고유 아이디
+  id                 Int      @id @default(autoincrement())
+  /// 관리자의 고유 아이디 (User 모델의 참조)
+  adminId            Int
+  /// 유닛의 제목
+  title              String   @db.VarChar(500)
+  /// 유닛의 타입 (예: 아파트, 빌라 등)
+  type               String
+  /// 판매 유형 (예: 매매, 임대 등)
+  sellType           String
+  /// 우편번호
+  address1           Int?
+  /// 도시
+  address2           String?  @db.VarChar(200)
+  /// 상세주소 (예: 도로명, 건물명 등)
+  address3           String?  @db.VarChar(200)
+  /// 추가 주소 정보 (예: 아파트 동, 호수 등)
+  address4           String?  @db.VarChar(200)
+  /// 브로커 입력
+  addressSelf        String?  @db.VarChar(200)
+  /// 소유주 이름
+  ownerName          String   @db.VarChar(50)
+  /// 소유주 연락처
+  ownerMobile        String?  @db.VarChar(50)
+  /// 유닛의 면적 (평방미터)
+  area               Int
+  /// 층수
+  floor              Int?
+  /// 침실 수
+  bed                Int?
+  /// 욕실 수
+  bath               Int?
+  /// 주차 공간 수
+  parking            Int?
+  /// 가구 정보
+  furniture          String?  @db.VarChar(50)
+  /// 내부 인테리어 상태
+  interiored         String?  @db.VarChar(50)
+  /// 애완동물 정책
+  petPolicy          String?  @db.VarChar(50)
+  /// 편의시설정보 
+  amenity            String?
+  /// 완공 연도
+  yearCompletion     String?  @db.Char(10)
+  /// 커미션
+  outstandingPayment Decimal? @db.Decimal(18, 2)
+  /// 가격
+  price              Decimal? @db.Decimal(18, 2)
+  /// 추가 메모
+  note               String?  @db.Text
+  /// 요청 사항
+  requested          String?  @db.Text
+  /// 이미지 정보
+  images             Json?
+  /// 지도 정보 (위치 관련 정보)
+  mapinfo            String?  @db.VarChar(500)
+  /// Ongoing = 0,  Completed = 1,  Contracted = 2,  UnderNegotiation = 3
+  status             Int      @default(0)
+  /// 마지막 업데이트 시간
+  lastUpdate         DateTime @default(now())
+  /// 등록 시간
+  regdate            DateTime @default(now())
+  /// 위도
+  latitude           Float?
+  /// 경도
+  longitude          Float?
+  /// 풀주소
+  fullAdress         String?  @db.VarChar(250)
+  /// 소유주 이메일
+  ownerEmail         String?  @db.VarChar(50)
+  /// 전체 조회수
+  viewCount          Int      @default(0)
+
+  /// 프로젝트 제목 (프리세일용)
+  projectTitle       String?  @db.VarChar(500)
+  /// 에디터 콘텐츠 (프리세일용 - HTML 형태의 상세 설명)
+  editorContent      String?  @db.Text
+  /// 프로젝트 동영상들 (프리세일용 - JSON 배열)
+  videos             Json?
+  videoDescriptionContent String?   @db.Text  
+  carouselImagesContent  String?   @db.Text 
+  /// 첨부 파일들 (프리세일용 - JSON 배열, PDF, DOC 등)
+  attachments        Json?
+
+  // 관계 추가
+  admin     User          @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  favorites Favorite[]
+  viewLogs  UnitViewLog[]
+  messages Message[]
+  @@index([adminId], map: "Unit_adminId_fkey")
+  @@map("unit")
+}
+
+model FeaturedUnit {
+  /// 고유 아이디
+  id              Int       @id @default(autoincrement())
+  /// 유닛 ID
+  unitId          Int       @unique(map: "FeaturedUnit_unitId_key")
+  /// 순서 (낮은 숫자가 먼저 표시)
+  order           Int
+  /// VIP 표시 텍스트 (예: "VIP", "PREMIUM" 등)
+  label           String    @db.VarChar(50)
+  /// VIP 상태 설명
+  description     String?   @db.Text
+  backgroundColor String?
+  textColor       String?
+  /// 시작 날짜
+  startDate       DateTime  @default(now())
+  /// 종료 날짜 (null이면 무기한)
+  endDate         DateTime?
+  /// 등록일
+  createdAt       DateTime  @default(now())
+  /// 마지막 수정일
+  updatedAt       DateTime  @updatedAt
+
+  @@index([order], map: "FeaturedUnit_order_idx")
+  @@map("featuredunit")
+}
+
+model Favorite {
+  /// 고유 아이디
+  id        Int      @id @default(autoincrement())
+  /// 유저 ID
+  userId    Int
+  /// 유닛 ID
+  unitId    Int
+  /// 즐겨찾기한 시간
+  createdAt DateTime @default(now())
+
+  // 관계 추가
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, unitId], map: "Favorite_userId_unitId_key")
+  @@index([unitId], map: "Favorite_unitId_fkey")
+  @@map("favorite")
+}
+
+model LoginLog {
+  /// 고유 아이디
+  id            Int      @id @default(autoincrement())
+  /// 접속한 IP 주소
+  ip            String?  @db.VarChar(100)
+  /// 접속 아이디 (User ID 참조)
+  userId        Int?
+  /// 접속 시도 상태 (예: fail or success)
+  attemptStatus String   @db.VarChar(50)
+  /// 데이터 생성 시간
+  createdAt     DateTime @default(now())
+
+  // 관계 추가
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId], map: "LoginLog_userId_fkey")
+  @@map("loginlog")
+}
+
+model PasswordResetLog {
+  id           Int      @id @default(autoincrement())
+  /// 비밀번호를 찾은 사용자의 이메일
+  email        String   @db.VarChar(300)
+  /// 변경 전 비밀번호
+  prevPassword String?  @db.VarChar(255)
+  /// 변경된 비밀번호
+  newPassword  String?  @db.VarChar(255)
+  /// 생성일
+  createdAt    DateTime @default(now())
+  /// IP 주소 
+  ip           String?  @db.VarChar(100)
+
+  @@index([createdAt], map: "PasswordResetLog_createdAt_idx")
+  @@index([email], map: "PasswordResetLog_email_idx")
+  @@map("passwordresetlog")
+}
+
+model UnitViewLog {
+  id        Int      @id @default(autoincrement())
+  /// 조회한 유닛 ID
+  unitId    Int
+  /// 로그인한 경우 유저 ID
+  userId    Int?
+  /// IP 주소
+  ip        String   @db.VarChar(100)
+  /// 조회 시간
+  createdAt DateTime @default(now())
+
+  // 관계 추가
+  unit Unit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt], map: "UnitViewLog_createdAt_idx")
+  @@index([unitId], map: "UnitViewLog_unitId_idx")
+  @@index([userId], map: "UnitViewLog_userId_idx")
+  @@map("unitviewlog")
+}
+
+model SiteVisitorLog {
+  id         Int       @id @default(autoincrement())
+  /// 브라우저 세션 구분용
+  sessionId  String    @db.VarChar(100)
+  /// 로그인한 경우 유저 ID (optional)
+  userId     Int?
+  /// 방문자 IP
+  ip         String    @db.VarChar(100)
+  /// 브라우저/디바이스 정보
+  userAgent  String?   @db.Text
+  /// 방문 시작 시간
+  visitStart DateTime  @default(now())
+  /// 방문 종료 시간
+  visitEnd   DateTime?
+  /// 마지막 활동 시간
+  lastActive DateTime  @default(now())
+  /// 로그인 여부
+  isLoggedIn Boolean   @default(false)
+  /// 현재 페이지 경로
+  path       String?   @db.VarChar(255)
+
+  // 관계 추가
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([ip], map: "SiteVisitorLog_ip_idx")
+  @@index([sessionId], map: "SiteVisitorLog_sessionId_idx")
+  @@index([userId], map: "SiteVisitorLog_userId_fkey")
+  @@index([visitStart], map: "SiteVisitorLog_visitStart_idx")
+  @@map("sitevisitorlog")
+}
+
+model AreaBanner {
+  id          Int      @id @default(autoincrement())
+  matchType   String
+  matchValue  String
+  priority    Int      @default(10)
+  title       String?  @db.VarChar(200)
+  description String?  @db.Text
+  images      String   @db.LongText
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  createdBy   Int?
+  fullAddress String?  @db.VarChar(500)
+  latitude    Float?
+  longitude   Float?
+
+  @@index([matchType, matchValue], map: "AreaBanner_matchType_matchValue_idx")
+  @@map("areabanner")
+}
+
+model Contact {
+  /// 고유 아이디
+  id           Int       @id @default(autoincrement())
+  /// 문의자 이름
+  name         String    @db.VarChar(100)
+  /// 문의자 이메일
+  email        String    @db.VarChar(300)
+  /// 문의자 전화번호
+  phone        String    @db.VarChar(50)
+  /// 문의 내용
+  message      String    @db.Text
+  /// 문의 상태 (0: 미처리, 1: 처리중, 2: 처리완료)
+  status       Int       @default(0)
+  /// 문의 등록일
+  createdAt    DateTime  @default(now())
+  /// 마지막 업데이트 시간
+  updatedAt    DateTime  @updatedAt
+  /// 처리자 아이디 (관리자)
+  adminId      Int?
+  /// 답변 내용
+  response     String?   @db.Text
+  /// 답변 방식 (0: 이메일, 1: 전화, 2: 문자, 3: 기타)
+  responseType Int?
+  /// 답변 일시
+  respondedAt  DateTime?
+  ///메모 
+  memo         String?
+  /// 문의자 IP 주소
+  ip           String?   @db.VarChar(100)
+  /// (선택) 문의자가 회원인 경우 회원 ID
+  userId       Int?
+
+  admin User? @relation(name: "ProcessedContacts", fields: [adminId], references: [id], onDelete: SetNull)
+  user  User? @relation(name: "UserContacts", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([adminId], map: "Contact_adminId_fkey")
+  @@index([userId], map: "Contact_userId_fkey")
+  @@index([status], map: "Contact_status_idx")
+  @@index([createdAt], map: "Contact_createdAt_idx")
+  @@map("contact")
+}
+
+model ComplainUnit {
+  /// 고유 아이디
+  id           Int       @id @default(autoincrement())
+  ///유닛아이디
+  unitId       Int
+  /// 작성자 아이디
+  writerId     Int
+  /// 신고자 아이디 
+  userId       Int
+  ///내용
+  message      String    @db.Text
+  ///상태 0:문의접수 1:처리중 2:처리완료
+  status       Int       @default(0)
+  /// 문의 등록일
+  createdAt    DateTime  @default(now())
+  /// 마지막 업데이트 시간
+  updatedAt    DateTime  @updatedAt
+  /// 처리자 아이디 (관리자)
+  adminId      Int?
+  /// 답변 내용
+  response     String?   @db.Text
+  /// 답변 방식 (0: 이메일, 1: 전화, 2: 문자, 3: 기타)
+  responseType Int?
+  /// 답변 일시
+  respondedAt  DateTime?
+
+  admin User? @relation(name: "ProcessedComplain", fields: [adminId], references: [id], onDelete: SetNull)
+  user  User  @relation(name: "UserComplain", fields: [userId], references: [id])
+
+  @@map("complainunit")
+}
+
+
+model Popup {
+  /// 고유 아이디
+  id            Int       @id @default(autoincrement())
+  /// 팝업 제목
+  title         String    @db.VarChar(255)
+  /// 팝업 내용
+  content       String?   @db.Text
+  
+  /// 시작일
+  startDate     DateTime?
+  /// 종료일
+  endDate       DateTime?
+  
+  /// 등록일
+  createdAt     DateTime  @default(now())
+  /// 마지막 업데이트 시간
+  updatedAt     DateTime  @updatedAt
+  /// 등록한 유저 아이디
+  createdByUserId Int
+  
+  /// 오버레이 사용 여부
+  useOverlay    Boolean   @default(true)
+  /// 활성화 상태
+  isActive      Boolean   @default(true)
+  /// 우선순위
+  priority      Int       @default(10)
+  
+  /// 타겟 대상
+  targetAudience String?  @default("all")
+  /// 타겟 조건 (JSON)
+  targetConditions Json?
+  
+  /// 버튼 텍스트
+  buttonText    String?   @db.VarChar(100)
+  /// 버튼 액션 (URL 또는 액션)
+  buttonAction  String?   @db.VarChar(255)
+  
+  /// 이미지 정보 (JSON)
+  images        String?   @db.Text
+  
+  /// 팝업 타입 (0: modal, 1: banner, 2: notification, 3: fullscreen)
+  popupType     Int       @default(0)
+  /// 트리거 타입 (0: page_load, 1: time_delay, 2: scroll, 3: exit_intent)
+  triggerType   Int       @default(0)
+  /// 트리거 값
+  triggerValue  String?
+  
+  /// 표시 빈도 (0: always, 1: once, 2: daily)
+  showFrequency Int       @default(0)
+
+  @@map("popups")
+}
+
+
+model MessageTemplate {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  description String?   @db.Text
+  title       String    @db.VarChar(255)
+  content     String    @db.Text
+  type        Int       @default(0)
+  createdBy   Int
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  createdByUser User     @relation("MessageTemplateCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  messages      Message[]
+
+  @@index([type])
+  @@index([createdBy])
+  @@map("messagetemplate")
+}
+
+model MessageGroup {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  description String?   @db.Text
+  createdBy   Int
+  status      Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  creator      User                    @relation("MessageGroupCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  members      MessageGroupMember[]
+  messages     Message[]
+
+  @@index([createdBy])
+  @@map("messagegroup")
+}
+
+model MessageGroupMember {
+  id      Int      @id @default(autoincrement())
+  groupId Int
+  userId  Int
+  addedAt DateTime @default(now())
+
+  group       MessageGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user        User         @relation("MessageGroupMember", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@map("messagegroupmember")
+}
+
+model Message {
+  id           Int       @id @default(autoincrement())
+  senderId     Int
+  recipientId  Int?
+  groupId      Int?
+  title        String    @db.VarChar(255)
+  content      String    @db.Text
+  type         Int       @default(0)
+  templateId   Int?
+  status       Int       @default(0)
+  sentAt       DateTime  @default(now())
+  readAt       DateTime?
+  attachments  Json?
+  unitId       Int?
+  scheduleId   Int?
+  contactId    Int?
+  priority     Int       @default(0)
+
+  sender       User              @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient    User?             @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  group        MessageGroup?     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  template     MessageTemplate?  @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  unit         Unit?             @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  notifications Notification[]
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([groupId])
+  @@index([status])
+  @@index([sentAt])
+  @@index([templateId])
+  @@map("message")
+}
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  messageId Int
+  userId    Int
+  isRead    Boolean   @default(false)
+  type      Int       @default(0)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  message   Message   @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User      @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notification")
+}

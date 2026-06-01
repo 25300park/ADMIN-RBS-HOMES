@@ -13,37 +13,30 @@ const s3Client = new S3Client({
 
 export async function POST(req: Request) {
   try {
-    // 세션에서 유저 ID를 가져옴
     const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ error: 'User is not authenticated' }, { status: 401 });
     }
-    const userId = session.user.id; // 
-
+    const userId = session.user.id;
     const formData = await req.formData();
-    const files = formData.getAll('files');
+    const files = formData.getAll('files') as File[];
 
     const uploadPromises: Promise<void>[] = [];
     const uploadedUrls: string[] = [];
 
     for (const file of files) {
-      const arrayBuffer = await (file as File).arrayBuffer();
+      const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-
-      // 현재 날짜와 시간을 기반으로 파일명 생성
       const date = new Date();
       const timestamp = date.toISOString().replace(/[:\-T.]/g, '');
       const fileName = `${timestamp}_${file.name}`;
-
       const uploadParams = {
-        Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
-        Key: `banners/${userId}/${fileName}`, // 유저 ID 폴더에 파일 업로드
+        Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME as string,
+        Key: `banners/${userId}/${fileName}`,
         Body: buffer,
         ContentType: file.type,
       };
-
       const command = new PutObjectCommand(uploadParams);
-
       const uploadPromise = s3Client.send(command)
         .then(() => {
           const url = `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
@@ -52,7 +45,6 @@ export async function POST(req: Request) {
         .catch(error => {
           console.error(`Error uploading file ${file.name}:`, error);
         });
-
       uploadPromises.push(uploadPromise);
     }
 

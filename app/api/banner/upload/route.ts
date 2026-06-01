@@ -11,7 +11,7 @@ const s3Client = new S3Client({
   },
 });
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     // 세션에서 유저 ID를 가져옴
     const session = await getServerSession(authOptions);

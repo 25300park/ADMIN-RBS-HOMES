@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const files = formData.getAll('files');
 
     const uploadPromises = [];
-    const uploadedUrls = [];
+    const uploadedUrls: string[] = [];
 
     for (const file of files) {
       const arrayBuffer = await file.arrayBuffer();

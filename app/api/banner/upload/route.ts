@@ -23,11 +23,11 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const files = formData.getAll('files');
 
-    const uploadPromises = [];
+    const uploadPromises: Promise<void>[] = [];
     const uploadedUrls: string[] = [];
 
     for (const file of files) {
-      const arrayBuffer = await file.arrayBuffer();
+      const arrayBuffer = await (file as File).arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
       // 현재 날짜와 시간을 기반으로 파일명 생성

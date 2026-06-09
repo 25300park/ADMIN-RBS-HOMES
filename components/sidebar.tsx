@@ -14,6 +14,10 @@ import {
   FileTextOutlined,
   SendOutlined,
   UnorderedListOutlined,
+  BankOutlined,
+  DollarOutlined,
+  ToolOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
 import Link from "next/link";
 import type { MenuItemType } from "@/utils/constants/menu";
@@ -35,6 +39,10 @@ const IconMap = {
   FileTextOutlined,
   SendOutlined,
   UnorderedListOutlined,
+  BankOutlined,
+  DollarOutlined,
+  ToolOutlined,
+  MessageOutlined,
 };
 
 interface SidebarProps {

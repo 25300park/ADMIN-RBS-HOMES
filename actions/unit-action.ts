@@ -33,7 +33,7 @@ interface SerializedUnit {
   furniture: string | null;
   interiored: string | null;
   petPolicy: string | null;
-  amenity: string | null;
+  amenity: any;
   yearCompletion: string | null;
   outstandingPayment: number | null;
   price: number | null;

@@ -234,6 +234,10 @@ export async function getUnitDetail(id: number): Promise<SerializedUnit> {
         typeof unit.images === "string"
           ? unit.images
           : JSON.stringify(unit.images),
+      amenity:
+        unit.amenity === null || typeof unit.amenity === "string"
+          ? unit.amenity
+          : JSON.stringify(unit.amenity),
       admin: {
         name: unit.admin.name,
         email: unit.admin.email,

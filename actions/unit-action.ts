@@ -17,7 +17,7 @@ interface SerializedUnit {
   title: string;
   type: string;
   sellType: string;
-  address1: number | null;
+  address1: string | null;
   address2: string | null;
   address3: string | null;
   address4: string | null;
@@ -223,6 +223,7 @@ export async function getUnitDetail(id: number): Promise<SerializedUnit> {
 
     const serializedUnit: SerializedUnit = {
       ...unit,
+      address1: unit.address1 !== null ? String(unit.address1) : null,
       price: unit.price ? Number(unit.price.toString()) : null,
       outstandingPayment: unit.outstandingPayment
         ? Number(unit.outstandingPayment.toString())

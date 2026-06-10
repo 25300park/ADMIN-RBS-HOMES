@@ -216,7 +216,7 @@ export default function UnifiedAdminForm({
     title: initialData?.title || "",
     projectTitle: initialData?.projectTitle || initialData?.title || "", // 프리세일의 경우 title을 projectTitle로도 사용
     unitType: initialData?.type || "condo",
-    fullAddress: initialData?.fullAdress || "",
+    fullAddress: initialData?.fullAddress || "",
     address1: initialData?.address1?.toString() || "",
     address2: initialData?.address2 || "",
     address3: initialData?.address3 || "",
@@ -980,7 +980,7 @@ export default function UnifiedAdminForm({
             <AdminAddressSearch 
               onChange={handleAddressChange} 
               initialData={isEditMode ? {
-                fullAddress: initialData?.fullAdress,
+                fullAddress: initialData?.fullAddress,
                 address1: initialData?.address1,
                 address2: initialData?.address2,
                 address3: initialData?.address3,

@@ -112,7 +112,7 @@ export async function registerUnit(data: RegisterUnitData) {
     // 기본 데이터 구조
     let transformedData: any = {
       sellType: data.saleType,
-      fullAdress: data.fullAddress,
+      fullAddress: data.fullAddress,
       address1: data.address1 ? parseInt(data.address1) : null,
       address2: data.address2 || null,
       address3: data.address3 || null,
@@ -285,7 +285,7 @@ export async function getUnitForEdit(unitId: number) {
         title: true,
         sellType: true,
         type: true,
-        fullAdress: true,
+        fullAddress: true,
         address1: true,
         address2: true,
         address3: true,

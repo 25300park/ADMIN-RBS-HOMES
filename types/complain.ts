@@ -15,7 +15,7 @@ export interface ComplainItem {
   unit?: {
     id: number;
     title: string;
-    fullAdress: string | null;
+    fullAddress: string | null;
   };
   writer?: {
     id: number;

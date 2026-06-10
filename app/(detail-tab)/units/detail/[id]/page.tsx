@@ -291,7 +291,7 @@ export default function UnitDetailPage() {
               {unit.sellType}
             </Descriptions.Item>
             <Descriptions.Item label="Address">
-              {unit.fullAdress}
+              {unit.fullAddress}
             </Descriptions.Item>
             <Descriptions.Item label="Owner">
               {unit.ownerName}

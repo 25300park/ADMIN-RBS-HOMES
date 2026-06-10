@@ -41,7 +41,7 @@ export interface UpcomingSchedule {
     title: string;
     type: string;
     sellType: string;
-    fullAdress: string | null;
+    fullAddress: string | null;
     agent: {
       name: string | null;
       phone: string | null;

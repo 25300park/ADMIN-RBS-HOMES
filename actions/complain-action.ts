@@ -94,7 +94,7 @@ export async function getComplains(params: SearchParams) {
           select: {
             id: true,
             title: true,
-            fullAdress: true,
+            fullAddress: true,
           },
         });
 
@@ -169,7 +169,7 @@ export async function getComplainDetail(id: number) {
       select: {
         id: true,
         title: true,
-        fullAdress: true,
+        fullAddress: true,
         type: true,
         sellType: true,
       },

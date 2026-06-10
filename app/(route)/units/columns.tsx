@@ -62,7 +62,7 @@ export const UnitColumns = (
   },
   {
     title: "Address",
-    dataIndex: "fullAdress",
+    dataIndex: "fullAddress",
     width: 200,
     ellipsis: true,
   },

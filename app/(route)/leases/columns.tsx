@@ -9,9 +9,9 @@ export type LeaseItem = {
   monthlyRent: number;
   startDate: string;
   endDate: string;
-  unit: { id: number; title: string; fullAddress: string | null };
-  landlord: { id: number; name: string | null; email: string | null };
-  tenant: { id: number; name: string | null; email: string | null };
+  unit: { id: number; title: string; fullAddress: string | null } | null;
+  landlord: { id: number; name: string | null; email: string | null } | null;
+  tenant: { id: number; name: string | null; email: string | null } | null;
 };
 
 const STATUS_CONFIG: Record<string, { text: string; color: string }> = {
@@ -48,7 +48,7 @@ export const LeaseColumns = (
         className="text-blue-600 cursor-pointer hover:underline"
         onClick={() => onRowClick(record.id)}
       >
-        {record.unit.title}
+        {record.unit?.title ?? "-"}
       </span>
     ),
   },
@@ -56,13 +56,13 @@ export const LeaseColumns = (
     title: "Landlord",
     width: 130,
     ellipsis: true,
-    render: (_, r) => r.landlord.name ?? r.landlord.email ?? "-",
+    render: (_, r) => r.landlord?.name ?? r.landlord?.email ?? "미지정",
   },
   {
     title: "Tenant",
     width: 130,
     ellipsis: true,
-    render: (_, r) => r.tenant.name ?? r.tenant.email ?? "-",
+    render: (_, r) => r.tenant?.name ?? r.tenant?.email ?? "미지정",
   },
   {
     title: "Start",

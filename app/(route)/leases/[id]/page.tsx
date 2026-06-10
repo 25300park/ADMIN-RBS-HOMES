@@ -231,16 +231,16 @@ export default function LeaseDetailPage() {
         column={{ xs: 1, sm: 2, md: 3 }}
         title="Contract Info"
       >
-        <Descriptions.Item label="Unit">{lease.unit.title}</Descriptions.Item>
-        <Descriptions.Item label="Address">{lease.unit.fullAddress ?? "—"}</Descriptions.Item>
+        <Descriptions.Item label="Unit">{lease.unit?.title ?? "-"}</Descriptions.Item>
+        <Descriptions.Item label="Address">{lease.unit?.fullAddress ?? "-"}</Descriptions.Item>
         <Descriptions.Item label="Status">
           <Tag color={PAYMENT_STATUS_COLOR[lease.status] ?? "default"}>{lease.status}</Tag>
         </Descriptions.Item>
         <Descriptions.Item label="Landlord">
-          {lease.landlord.name ?? lease.landlord.email}
+          {lease.landlord?.name ?? lease.landlord?.email ?? "미지정"}
         </Descriptions.Item>
         <Descriptions.Item label="Tenant">
-          {lease.tenant.name ?? lease.tenant.email} · {lease.tenant.phone ?? "—"}
+          {lease.tenant?.name ?? lease.tenant?.email ?? "미지정"} · {lease.tenant?.phone ?? "-"}
         </Descriptions.Item>
         <Descriptions.Item label="Monthly Rent">
           ₱ {lease.monthlyRent.toLocaleString()}
@@ -250,9 +250,7 @@ export default function LeaseDetailPage() {
           {dayjs(lease.endDate).format("YYYY.MM.DD")}
         </Descriptions.Item>
         <Descriptions.Item label="Payment Type">{lease.paymentType}</Descriptions.Item>
-        {lease.condo && (
-          <Descriptions.Item label="Condo">{lease.condo.condoName}</Descriptions.Item>
-        )}
+        <Descriptions.Item label="Condo">{lease.condo?.condoName ?? "-"}</Descriptions.Item>
         {lease.notes && (
           <Descriptions.Item label="Notes" span={3}>
             {lease.notes}

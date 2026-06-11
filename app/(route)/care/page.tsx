@@ -21,7 +21,10 @@ const SERVICE_TYPE_OPTIONS = [
 const STATUS_OPTIONS = [
   { label: "All", value: "" },
   { label: "Pending", value: "PENDING" },
+  { label: "Pending Owner Approval", value: "PENDING_OWNER_APPROVAL" },
   { label: "Scheduled", value: "SCHEDULED" },
+  { label: "In Progress", value: "IN_PROGRESS" },
+  { label: "Awaiting Tenant Confirmation", value: "AWAITING_TENANT_CONFIRMATION" },
   { label: "Completed", value: "COMPLETED" },
   { label: "Cancelled", value: "CANCELLED" },
 ];

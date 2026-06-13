@@ -72,7 +72,7 @@ export async function getLeases(params: SearchParams & { status?: string }) {
     prisma.leaseContract.findMany({
       where,
       include: {
-        unit: { select: { id: true, title: true, fullAddress: true } },
+        unit: { select: { id: true, title: true, fullAdress: true } },
         landlord: { select: { id: true, name: true, email: true } },
         tenant: { select: { id: true, name: true, email: true } },
       },
@@ -89,7 +89,7 @@ export async function getLeaseDetail(id: number) {
   const lease = await prisma.leaseContract.findUnique({
     where: { id },
     include: {
-      unit: { select: { id: true, title: true, fullAddress: true } },
+      unit: { select: { id: true, title: true, fullAdress: true } },
       condo: { select: { id: true, condoName: true } },
       landlord: { select: { id: true, name: true, email: true, phone: true } },
       tenant: { select: { id: true, name: true, email: true, phone: true } },
@@ -143,7 +143,7 @@ export async function getPayments(
           select: {
             id: true,
             monthlyRent: true,
-            unit: { select: { title: true, fullAddress: true } },
+            unit: { select: { title: true, fullAdress: true } },
             tenant: { select: { id: true, name: true, email: true } },
           },
         },
@@ -197,7 +197,7 @@ export async function getCareRequests(
         contract: {
           select: {
             id: true,
-            unit: { select: { title: true, fullAddress: true } },
+            unit: { select: { title: true, fullAdress: true } },
             tenant: { select: { id: true, name: true, phone: true } },
           },
         },

@@ -9,7 +9,7 @@ export type LeaseItem = {
   monthlyRent: number;
   startDate: string;
   endDate: string;
-  unit: { id: number; title: string; fullAddress: string | null } | null;
+  unit: { id: number; title: string; fullAdress: string | null } | null;
   landlord: { id: number; name: string | null; email: string | null } | null;
   tenant: { id: number; name: string | null; email: string | null } | null;
 };

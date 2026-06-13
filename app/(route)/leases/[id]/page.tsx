@@ -232,7 +232,7 @@ export default function LeaseDetailPage() {
         title="Contract Info"
       >
         <Descriptions.Item label="Unit">{lease.unit?.title ?? "-"}</Descriptions.Item>
-        <Descriptions.Item label="Address">{lease.unit?.fullAddress ?? "-"}</Descriptions.Item>
+        <Descriptions.Item label="Address">{lease.unit?.fullAdress ?? "-"}</Descriptions.Item>
         <Descriptions.Item label="Status">
           <Tag color={PAYMENT_STATUS_COLOR[lease.status] ?? "default"}>{lease.status}</Tag>
         </Descriptions.Item>

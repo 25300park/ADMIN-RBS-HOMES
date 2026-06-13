@@ -664,3 +664,13 @@ model Notification {
   @@index([createdAt])
   @@map("notification")
 }
+
+enum CareStatus {
+  PENDING
+  PENDING_OWNER_APPROVAL
+  SCHEDULED
+  IN_PROGRESS
+  AWAITING_TENANT_CONFIRMATION
+  COMPLETED
+  CANCELLED
+}

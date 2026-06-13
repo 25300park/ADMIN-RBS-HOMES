@@ -14,7 +14,7 @@ interface RegisterUnitData {
 
   title: string;
   unitType: string;
-  fullAddress: string;
+  fullAdress: string;
   address1: string;
   address2: string;
   address3: string;
@@ -112,7 +112,7 @@ export async function registerUnit(data: RegisterUnitData) {
     // 기본 데이터 구조
     let transformedData: any = {
       sellType: data.saleType,
-      fullAddress: data.fullAddress,
+      fullAdress: data.fullAdress,
       address1: data.address1 ? parseInt(data.address1) : null,
       address2: data.address2 || null,
       address3: data.address3 || null,
@@ -285,7 +285,7 @@ export async function getUnitForEdit(unitId: number) {
         title: true,
         sellType: true,
         type: true,
-        fullAddress: true,
+        fullAdress: true,
         address1: true,
         address2: true,
         address3: true,

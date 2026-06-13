@@ -21,14 +21,20 @@ export type CareItem = {
 
 const STATUS_COLOR: Record<string, string> = {
   PENDING: "default",
+  PENDING_OWNER_APPROVAL: "orange",
   SCHEDULED: "blue",
+  IN_PROGRESS: "purple",
+  AWAITING_TENANT_CONFIRMATION: "cyan",
   COMPLETED: "green",
   CANCELLED: "red",
 };
 
 const CARE_STATUS_OPTIONS = [
   { label: "Pending", value: "PENDING" },
+  { label: "Pending Owner Approval", value: "PENDING_OWNER_APPROVAL" },
   { label: "Scheduled", value: "SCHEDULED" },
+  { label: "In Progress", value: "IN_PROGRESS" },
+  { label: "Awaiting Tenant Confirmation", value: "AWAITING_TENANT_CONFIRMATION" },
   { label: "Completed", value: "COMPLETED" },
   { label: "Cancelled", value: "CANCELLED" },
 ];

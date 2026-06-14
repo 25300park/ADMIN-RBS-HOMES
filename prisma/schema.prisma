@@ -67,6 +67,7 @@ model User {
   tenantLeases      LeaseContract[]   @relation("TenantLeases")
   leaseCreatedBy    LeaseContract[]   @relation("LeaseCreatedBy")
   verifiedPayments  PaymentSchedule[] @relation("PaymentVerifiedBy")
+  communityPosts    CommunityPost[]   @relation("CommunityPostAuthor")
 
   @@map("user")
 }
@@ -791,5 +792,21 @@ model CondoMaster {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   leaseContracts LeaseContract[]
+  communityPosts CommunityPost[]
   @@map("condomaster")
+}
+
+model CommunityPost {
+  id        Int         @id @default(autoincrement())
+  condoId   Int
+  authorId  Int
+  title     String      @db.VarChar(200)
+  body      String      @db.Text
+  isNotice  Boolean     @default(false)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  condo     CondoMaster @relation(fields: [condoId], references: [id])
+  author    User        @relation("CommunityPostAuthor", fields: [authorId], references: [id])
+  @@index([condoId])
+  @@map("communitypost")
 }

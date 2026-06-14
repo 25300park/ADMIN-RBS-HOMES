@@ -718,6 +718,7 @@ model LeaseContract {
   updatedAt   DateTime       @updatedAt
 
   unit             Unit                 @relation(fields: [unitId], references: [id])
+  condo            CondoMaster?         @relation(fields: [condoId], references: [id])
   landlord         User?                @relation("LandlordLeases", fields: [landlordId], references: [id], onDelete: SetNull)
   tenant           User?                @relation("TenantLeases", fields: [tenantId], references: [id], onDelete: SetNull)
   createdBy        User?                @relation("LeaseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
@@ -782,4 +783,13 @@ enum CareServiceType {
   CLEANING
   REPAIR
   HANDYMAN
+}
+
+model CondoMaster {
+  id             Int             @id @default(autoincrement())
+  condoName      String          @db.VarChar(200)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  leaseContracts LeaseContract[]
+  @@map("condomaster")
 }

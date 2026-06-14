@@ -15,7 +15,7 @@ export type PaymentItem = {
   contract: {
     id: number;
     monthlyRent: number;
-    unit: { title: string; fullAddress: string | null };
+    unit: { title: string; fullAdress: string | null };
     tenant: { id: number; name: string | null; email: string | null };
   };
   verifiedBy: { id: number; name: string | null } | null;

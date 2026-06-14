@@ -46,7 +46,7 @@ interface SerializedUnit {
   regdate: string;
   latitude: number | null;
   longitude: number | null;
-  fullAddress: string | null;
+  fullAdress: string | null;
   viewCount: number;
   admin: {
     name: string | null;
@@ -95,7 +95,7 @@ function getWhereClause(params: SearchParams): Record<string, any> {
         ? {
             OR: [
               { title: { contains: search } },
-              { fullAddress: { contains: search } },
+              { fullAdress: { contains: search } },
               { ownerName: { contains: search } },
             ],
           }
@@ -130,7 +130,7 @@ export async function getUnits(params: SearchParams) {
           title: true,
           type: true,
           sellType: true,
-          fullAddress: true,
+          fullAdress: true,
           area: true,
           bed: true,
           bath: true,

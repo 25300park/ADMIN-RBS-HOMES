@@ -4,7 +4,7 @@ export interface Unit {
   title: string;
   type: string;
   sellType: string;
-  fullAddress: string | null;
+  fullAdress: string | null;
   address1: number | null;
   address2: string | null;
   address3: string | null;
@@ -43,7 +43,7 @@ export interface UnitListItem
     | "title"
     | "type"
     | "sellType"
-    | "fullAddress"
+    | "fullAdress"
     | "area"
     | "bed"
     | "bath"

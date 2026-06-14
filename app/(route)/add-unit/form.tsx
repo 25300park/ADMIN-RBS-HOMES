@@ -216,7 +216,7 @@ export default function UnifiedAdminForm({
     title: initialData?.title || "",
     projectTitle: initialData?.projectTitle || initialData?.title || "", // 프리세일의 경우 title을 projectTitle로도 사용
     unitType: initialData?.type || "condo",
-    fullAddress: initialData?.fullAddress || "",
+    fullAdress: initialData?.fullAdress || "",
     address1: initialData?.address1?.toString() || "",
     address2: initialData?.address2 || "",
     address3: initialData?.address3 || "",
@@ -341,9 +341,11 @@ export default function UnifiedAdminForm({
   };
 
   const handleAddressChange = (addressData: AddressData) => {
+    const { fullAddress, ...rest } = addressData;
     setUnitFormData((prev: any) => ({
       ...prev,
-      ...addressData,
+      ...rest,
+      fullAdress: fullAddress,
     }));
   };
 
@@ -598,7 +600,7 @@ export default function UnifiedAdminForm({
       errors.push(isPreSale ? "Project title is required" : "Title is required");
     }
 
-    if (!unitFormData.fullAddress?.trim()) {
+    if (!unitFormData.fullAdress?.trim()) {
       errors.push("Address is required");
     }
 
@@ -980,7 +982,7 @@ export default function UnifiedAdminForm({
             <AdminAddressSearch 
               onChange={handleAddressChange} 
               initialData={isEditMode ? {
-                fullAddress: initialData?.fullAddress,
+                fullAddress: initialData?.fullAdress,
                 address1: initialData?.address1,
                 address2: initialData?.address2,
                 address3: initialData?.address3,

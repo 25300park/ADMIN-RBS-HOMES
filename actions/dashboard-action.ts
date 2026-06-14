@@ -191,7 +191,7 @@ export async function getPopularUnits() {
       select: {
         id: true,
         title: true,
-        fullAddress: true,
+        fullAdress: true,
         price: true,
         favorites: {
           select: {
@@ -211,7 +211,7 @@ export async function getPopularUnits() {
     const formattedUnits = popularUnits.map((unit) => ({
       id: unit.id,
       title: unit.title,
-      fullAddress: unit.fullAddress,
+      fullAdress: unit.fullAdress,
       price: unit.price ? Number(unit.price) : null,
       favoriteCount: unit.favorites.length,
     }));
@@ -315,7 +315,7 @@ export async function getUpcomingSchedules(dateFilter: DateFilter) {
               title: true,
               type: true,
               sellType: true,
-              fullAddress: true,
+              fullAdress: true,
               admin: {
                 select: {
                   name: true,
@@ -331,7 +331,7 @@ export async function getUpcomingSchedules(dateFilter: DateFilter) {
               title: unit.title,
               type: unit.type,
               sellType: unit.sellType,
-              fullAddress: unit.fullAddress,
+              fullAdress: unit.fullAdress,
               agent: {
                 name: unit.admin.name,
                 phone: unit.admin.phone,

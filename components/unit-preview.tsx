@@ -27,7 +27,7 @@ export const RegularUnitPreview = ({ formData }: any) => {
             {formData.title || 'Unit Title'}
           </h1>
           <p style={{ color: 'white', margin: '4px 0 0', fontSize: '14px' }}>
-            {formData.fullAddress || 'Location'}
+            {formData.fullAdress || 'Location'}
           </p>
         </div>
       </div>
@@ -167,7 +167,7 @@ export const PreSaleUnitPreview = ({ formData }: any) => {
               {formData.title || 'Project Title'}
             </h1>
             <p style={{ paddingBottom: "10px", fontSize: '14px', borderBottom: '1px solid #d6d6d6' }}>
-              {formData.fullAddress || 'Project Location'}
+              {formData.fullAdress || 'Project Location'}
             </p>
           </div>
 

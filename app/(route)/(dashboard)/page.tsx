@@ -112,8 +112,8 @@ export default function DashboardPage() {
     },
     {
       title: "Address",
-      dataIndex: "fullAddress",
-      key: "fullAddress",
+      dataIndex: "fullAdress",
+      key: "fullAdress",
       render: (text: string) => <span className="text-gray-600">{text}</span>,
     },
     {
@@ -190,7 +190,7 @@ export default function DashboardPage() {
       render: (text: string, record: any) => (
         <div>
           <div>{record.unit?.title || "No property information"}</div>
-          <div className="text-xs text-gray-500">{record.unit?.fullAddress}</div>
+          <div className="text-xs text-gray-500">{record.unit?.fullAdress}</div>
         </div>
       ),
     },

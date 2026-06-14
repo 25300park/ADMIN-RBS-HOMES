@@ -14,7 +14,7 @@ export type CareItem = {
   description: string | null;
   contract: {
     id: number;
-    unit: { title: string; fullAddress: string | null };
+    unit: { title: string; fullAdress: string | null };
     tenant: { id: number; name: string | null; phone: string | null };
   };
 };

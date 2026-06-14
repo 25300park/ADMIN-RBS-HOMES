@@ -63,6 +63,10 @@ model User {
   userContacts      Contact[]        @relation("UserContacts")
   processedComplain ComplainUnit[]   @relation("ProcessedComplain")
   userComplain      ComplainUnit[]   @relation("UserComplain")
+  landlordLeases    LeaseContract[]   @relation("LandlordLeases")
+  tenantLeases      LeaseContract[]   @relation("TenantLeases")
+  leaseCreatedBy    LeaseContract[]   @relation("LeaseCreatedBy")
+  verifiedPayments  PaymentSchedule[] @relation("PaymentVerifiedBy")
 
   @@map("user")
 }
@@ -274,6 +278,7 @@ model Unit {
   favorites Favorite[]
   viewLogs  UnitViewLog[]
   messages Message[]
+  leaseContracts LeaseContract[]
   @@index([adminId], map: "Unit_adminId_fkey")
   @@map("unit")
 }
@@ -673,4 +678,108 @@ enum CareStatus {
   AWAITING_TENANT_CONFIRMATION
   COMPLETED
   CANCELLED
+}
+
+enum PaymentType {
+  MONTHLY_TRANSFER
+  PDC
+  CASH
+}
+
+enum ContractStatus {
+  ACTIVE
+  EXPIRING_SOON
+  EXPIRED
+  TERMINATED
+}
+
+enum PaymentStatus {
+  PENDING
+  AWAITING_APPROVAL
+  PAID
+  OVERDUE
+}
+
+model LeaseContract {
+  id          Int            @id @default(autoincrement())
+  unitId      Int
+  condoId     Int?
+  landlordId  Int?
+  tenantId    Int?
+  startDate   DateTime       @db.Date
+  endDate     DateTime       @db.Date
+  monthlyRent Decimal        @db.Decimal(12, 2)
+  paymentType PaymentType    @default(MONTHLY_TRANSFER)
+  status      ContractStatus @default(ACTIVE)
+  notes       String?        @db.Text
+  crmDealId   String?        @db.VarChar(100)
+  createdById Int?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  unit             Unit                 @relation(fields: [unitId], references: [id])
+  landlord         User?                @relation("LandlordLeases", fields: [landlordId], references: [id], onDelete: SetNull)
+  tenant           User?                @relation("TenantLeases", fields: [tenantId], references: [id], onDelete: SetNull)
+  createdBy        User?                @relation("LeaseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  paymentSchedules PaymentSchedule[]
+  careRequests     CareServiceRequest[]
+
+  @@index([unitId])
+  @@index([landlordId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([endDate])
+  @@map("leasecontract")
+}
+
+model PaymentSchedule {
+  id              Int           @id @default(autoincrement())
+  contractId      Int
+  dueDate         DateTime      @db.Date
+  amountDue       Decimal       @db.Decimal(12, 2)
+  status          PaymentStatus @default(PENDING)
+  pdcNumber       String?       @db.VarChar(100)
+  receiptImageUrl String?       @db.VarChar(500)
+  receiptNotes    String?       @db.Text
+  verifiedAt      DateTime?
+  verifiedById    Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  contract   LeaseContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  verifiedBy User?         @relation("PaymentVerifiedBy", fields: [verifiedById], references: [id], onDelete: SetNull)
+
+  @@index([contractId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("paymentschedule")
+}
+
+model CareServiceRequest {
+  id             Int             @id @default(autoincrement())
+  contractId     Int
+  serviceType    CareServiceType
+  preferredDate  DateTime
+  status         CareStatus      @default(PENDING)
+  price          Decimal?        @db.Decimal(10, 2)
+  description    String?         @db.Text
+  reportImageUrl String?         @db.VarChar(500)
+  scheduledAt    DateTime?
+  completedAt    DateTime?
+  assignedTo     String?         @db.VarChar(100)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  contract LeaseContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@index([contractId])
+  @@index([status])
+  @@map("careservicerequest")
+}
+
+enum CareServiceType {
+  AIRCON
+  CLEANING
+  REPAIR
+  HANDYMAN
 }

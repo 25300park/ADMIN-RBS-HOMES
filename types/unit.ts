@@ -52,6 +52,12 @@ export interface UnitListItem
     | "regdate"
     | "lastUpdate"
   > {
+  agentId?: number | null;
+  agent?: {
+    id: number;
+    name: string | null;
+    email: string | null;
+  } | null;
   admin?: {
     name: string | null;
     email: string | null;

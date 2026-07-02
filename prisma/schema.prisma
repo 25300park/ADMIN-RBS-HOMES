@@ -47,6 +47,7 @@ model User {
 
   // 관계 필드 추가
   unit              Unit[]
+  agentUnits        Unit[]  @relation("AgentUnits")
   account           Account[]
   session           Session[]
   favorites         Favorite[]
@@ -274,13 +275,18 @@ model Unit {
   /// 첨부 파일들 (프리세일용 - JSON 배열, PDF, DOC 등)
   attachments        Json?
 
+  /// 담당 에이전트 ID (NULL = 미배정)
+  agentId            Int?
+
   // 관계 추가
   admin     User          @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  agent     User?         @relation("AgentUnits", fields: [agentId], references: [id], onDelete: SetNull)
   favorites Favorite[]
   viewLogs  UnitViewLog[]
   messages Message[]
   leaseContracts LeaseContract[]
   @@index([adminId], map: "Unit_adminId_fkey")
+  @@index([agentId])
   @@map("unit")
 }
 

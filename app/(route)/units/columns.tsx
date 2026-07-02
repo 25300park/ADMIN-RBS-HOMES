@@ -94,13 +94,27 @@ export const UnitColumns = (
         : "-",
   },
   {
-    title: "Agent",
+    title: "Registrant",
     dataIndex: ["admin", "name"],
     width: 150,
     ellipsis: true,
     render: (name: string | null, record) => (
       <span>{name || record.admin?.email || "-"}</span>
     ),
+  },
+  {
+    title: "Agent",
+    dataIndex: ["agent", "name"],
+    width: 150,
+    ellipsis: true,
+    render: (_: any, record) => {
+      const name = record.agent?.name || record.agent?.email;
+      return name ? (
+        <span>{name}</span>
+      ) : (
+        <Tag color="default">Unassigned</Tag>
+      );
+    },
   },
   {
     title: "last updated",

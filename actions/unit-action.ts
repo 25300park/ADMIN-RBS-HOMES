@@ -48,6 +48,12 @@ interface SerializedUnit {
   longitude: number | null;
   fullAdress: string | null;
   viewCount: number;
+  agentId: number | null;
+  agent: {
+    id: number;
+    name: string | null;
+    email: string | null;
+  } | null;
   admin: {
     name: string | null;
     email: string | null;
@@ -56,7 +62,7 @@ interface SerializedUnit {
 }
 
 function getWhereClause(params: SearchParams): Record<string, any> {
-  const { search, type, sellType, status, startDate, endDate } = params;
+  const { search, type, sellType, status, startDate, endDate, agentId } = params;
 
   const statuses = Array.isArray(status)
     ? status.map(Number)
@@ -104,6 +110,11 @@ function getWhereClause(params: SearchParams): Record<string, any> {
       sellTypes.length > 0 ? { sellType: { in: sellTypes } } : {},
       statuses.length > 0 ? { status: { in: statuses } } : {},
       dateFilter,
+      agentId === "unassigned"
+        ? { agentId: null }
+        : agentId !== undefined && agentId !== ""
+        ? { agentId: Number(agentId) }
+        : {},
     ].filter((condition) => Object.keys(condition).length > 0),
   };
 
@@ -138,6 +149,14 @@ export async function getUnits(params: SearchParams) {
           status: true,
           regdate: true,
           lastUpdate: true,
+          agentId: true,
+          agent: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
           admin: {
             select: {
               name: true,
@@ -207,6 +226,13 @@ export async function getUnitDetail(id: number): Promise<SerializedUnit> {
     const unit = await prisma.unit.findUnique({
       where: { id },
       include: {
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
         admin: {
           select: {
             name: true,
@@ -238,6 +264,10 @@ export async function getUnitDetail(id: number): Promise<SerializedUnit> {
         unit.amenity === null || typeof unit.amenity === "string"
           ? unit.amenity
           : JSON.stringify(unit.amenity),
+      agentId: unit.agentId,
+      agent: unit.agent
+        ? { id: unit.agent.id, name: unit.agent.name, email: unit.agent.email }
+        : null,
       admin: {
         name: unit.admin.name,
         email: unit.admin.email,
@@ -272,6 +302,15 @@ interface UpdateUnitParams {
   bath?: number;
   parking?: number;
   amenity?: string;
+}
+
+export async function getAgentOptions() {
+  const agents = await prisma.user.findMany({
+    where: { level: { in: [2, 3] } },
+    select: { id: true, name: true, email: true },
+    orderBy: { name: "asc" },
+  });
+  return agents;
 }
 
 // [02-25 추가] 매물 정보 업데이트 함수

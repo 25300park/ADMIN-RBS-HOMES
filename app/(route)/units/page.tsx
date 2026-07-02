@@ -2,11 +2,11 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getUnits, updateUnitStatus } from "@/actions/unit-action";
+import { getUnits, updateUnitStatus, getAgentOptions } from "@/actions/unit-action";
 import { useTableParams } from "@/hooks/use-table-params";
 import DataTable from "@/components/data-table";
 import { UnitColumns } from "./columns";
-import { Button, message, Space } from "antd";
+import { Button, message, Space, Select } from "antd";
 import type { UnitListItem } from "@/types/unit";
 import { DateRangePicker } from "@/components/date-range-picker";
 
@@ -29,6 +29,11 @@ export default function UnitPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["units", params],
     queryFn: () => getUnits(params),
+  });
+
+  const { data: agentOptions } = useQuery({
+    queryKey: ["agentOptions"],
+    queryFn: () => getAgentOptions(),
   });
 
   const updateStatusMutation = useMutation({
@@ -65,7 +70,42 @@ export default function UnitPage() {
 
   return (
     <div className="space-y-4">
-      <Space className="flex justify-between">
+      <Space className="flex justify-between" wrap>
+        <Space wrap>
+          <Select
+            allowClear
+            placeholder="Filter by Agent"
+            style={{ width: 200 }}
+            value={
+              params.agentId === "unassigned" || params.agentId === undefined
+                ? undefined
+                : Number(params.agentId)
+            }
+            onChange={(val) =>
+              updateParams({ agentId: val !== undefined ? String(val) : undefined })
+            }
+            options={(agentOptions ?? []).map((a) => ({
+              value: a.id,
+              label: a.name ?? a.email ?? String(a.id),
+            }))}
+          />
+          <Button
+            type={params.agentId === "unassigned" ? "primary" : "default"}
+            onClick={() =>
+              updateParams({
+                agentId:
+                  params.agentId === "unassigned" ? undefined : "unassigned",
+              })
+            }
+          >
+            Unassigned Only
+          </Button>
+          {params.agentId !== undefined && (
+            <Button onClick={() => updateParams({ agentId: undefined })}>
+              Clear Filter
+            </Button>
+          )}
+        </Space>
         <Button
           type="primary"
           icon={<DownloadOutlined />}

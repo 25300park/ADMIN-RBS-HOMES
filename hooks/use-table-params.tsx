@@ -32,6 +32,7 @@ export function useTableParams(initialParams: SearchParams) {
       sellType: parseArrayParam(searchParams.get('sellType')),
       startDate: searchParams.get('startDate') || initialParams.startDate,
       endDate: searchParams.get('endDate') || initialParams.endDate,
+      agentId: searchParams.get('agentId') || undefined,
     }
 
     // undefined, 빈 값, null, 'null' 문자열, 빈 배열 제거

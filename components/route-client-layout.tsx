@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Layout } from "antd";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Sidebar from "./sidebar";
@@ -10,60 +9,36 @@ import PageHeader from "./page-header";
 import FullPageLoading from "./fullpage-loading";
 import type { MenuItemType } from "@/utils/constants/menu";
 
-const { Content } = Layout;
-
 interface LayoutProps {
   children: React.ReactNode;
   authorizedMenus: MenuItemType[];
 }
 
-export default function RouteClientLayout({
-  children,
-  authorizedMenus,
-}: LayoutProps) {
+export default function RouteClientLayout({ children, authorizedMenus }: LayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { data: session, status } = useSession();
   const pathname = usePathname();
 
-  // 현재 메뉴 찾기 (서브메뉴도 고려)
-  const findCurrentMenu = (
-    menus: MenuItemType[],
-    path: string
-  ): MenuItemType | undefined => {
+  const findCurrentMenu = (menus: MenuItemType[], path: string): MenuItemType | undefined => {
     for (const menu of menus) {
-      // 정확한 경로 매칭
-      if (menu.path === path) {
-        return menu;
-      }
-      
-      // 서브메뉴 확인
+      if (menu.path === path) return menu;
       if (menu.children) {
         const found = findCurrentMenu(menu.children, path);
-        if (found) {
-          return found;
-        }
+        if (found) return found;
       }
     }
     return undefined;
   };
 
-  // 사이드바에서 표시할 경로 (첫 번째 세그먼트)
   const getMainPath = (path: string): string => {
     if (path === "/") return "/";
-    const segments = path.split("/").filter(Boolean);
-    return `/${segments[0]}`;
+    return `/${path.split("/").filter(Boolean)[0]}`;
   };
 
-  const currentPath =
-    pathname === "/"
-      ? "/"
-      : getMainPath(pathname);
-
+  const currentPath = pathname === "/" ? "/" : getMainPath(pathname);
   const currentMenu = findCurrentMenu(authorizedMenus, pathname);
-  
-  // 페이지 헤더에 보여줄 메뉴는 현재 페이지의 메뉴 또는 부모 메뉴
-  const displayMenu = currentMenu || authorizedMenus.find(m => m.path === currentPath);
+  const displayMenu = currentMenu || authorizedMenus.find((m) => m.path === currentPath);
 
   useEffect(() => {
     setMounted(true);
@@ -74,36 +49,29 @@ export default function RouteClientLayout({
   }
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sidebar
-        menus={authorizedMenus}
-        collapsed={collapsed}
-        currentPath={currentPath}
-      />
-      <Layout>
-        <Header
-          collapsed={collapsed}
-          setCollapsed={setCollapsed}
-          email={session?.user?.email || ""}
-        />
-        <Content>
+    <div className="min-h-screen bg-secondary">
+      {/* 1. 좌측 사이드바 */}
+      <Sidebar menus={authorizedMenus} collapsed={collapsed} currentPath={currentPath} />
+      
+      {/* 2. 메인 컨텐츠 영역 (사이드바 너비에 따라 마진 조정) */}
+      <main 
+        className={`flex flex-col min-h-screen transition-all duration-300 ${
+          collapsed ? "ml-20" : "ml-64"
+        }`}
+      >
+        <Header collapsed={collapsed} setCollapsed={setCollapsed} email={session?.user?.email || ""} />
+        
+        {/* 내부 컨테이너 (여백 24px) */}
+        <div className="flex-1 p-6 space-y-6">
           {displayMenu && currentPath !== "/" && (
-            <PageHeader
-              title={displayMenu.label}
-              subtitle={displayMenu.description}
-            />
+            <PageHeader title={displayMenu.label} subtitle={displayMenu.description} />
           )}
-          <div
-            style={{
-              padding: "24px",
-              background: "white",
-            }}
-            className="min-h-[calc(100vh-210px)]"
-          >
+          
+          <div className="bg-white rounded-xl shadow-sm border border-border min-h-[calc(100vh-210px)] p-6">
             {children}
           </div>
-        </Content>
-      </Layout>
-    </Layout>
+        </div>
+      </main>
+    </div>
   );
 }

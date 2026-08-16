@@ -1,9 +1,11 @@
 'use client'
-import { Table, Input, Space } from 'antd'
+
+import { Table, Input } from 'antd'
 import { memo, useCallback, useMemo, useState } from 'react'
 import type { TableProps as AntTableProps, TablePaginationConfig } from 'antd/es/table'
 import type { SearchParams } from '@/types/table'
 import { DateRangePicker } from '@/components/date-range-picker'
+import { Search as SearchIcon } from 'lucide-react'
 
 const { Search } = Input
 
@@ -26,15 +28,11 @@ function DataTable<T extends { id: number | string }>({
   total = 0,
   ...restProps
 }: DataTableProps<T>) {
-  // 날짜 상태를 임시로 저장
   const [dateRange, setDateRange] = useState<[string, string] | undefined>(
     params.startDate && params.endDate ? [params.startDate, params.endDate] : undefined
   );
-
-  // 검색어 상태를 임시로 저장
   const [searchText, setSearchText] = useState(params.search || '');
 
-  // 통합 검색 핸들러
   const handleSearch = useCallback((value: string) => {
     onParamsChange({
       search: value,
@@ -44,7 +42,6 @@ function DataTable<T extends { id: number | string }>({
     });
   }, [onParamsChange, dateRange]);
 
-  // 테이블 변경 핸들러
   const handleTableChange = useCallback((
     pagination: TablePaginationConfig,
     filters: any,
@@ -59,7 +56,6 @@ function DataTable<T extends { id: number | string }>({
     });
   }, [onParamsChange]);
 
-  // 페이지네이션 설정
   const paginationConfig = useMemo(() => ({
     current: params.page,
     pageSize: params.limit,
@@ -68,29 +64,31 @@ function DataTable<T extends { id: number | string }>({
     showTotal: (total: number) => `Total ${total} items`,
   }), [params.page, params.limit, total]);
 
-  // 검색 영역 컴포넌트
   const SearchComponent = useMemo(() => (
-    <Space size="middle">
+    <div className="flex flex-wrap items-center gap-4">
       <DateRangePicker
         value={dateRange}
         onChange={(dates) => setDateRange(dates || undefined)}
       />
       <Search
-        placeholder={searchPlaceholder}
+        placeholder={searchPlaceholder || "Search..."}
         value={searchText}
         onChange={e => setSearchText(e.target.value)}
         onSearch={handleSearch}
-        style={{ width: 300 }}
+        className="w-full max-w-xs"
         allowClear
+        enterButton={<SearchIcon size={18} className="text-muted-foreground" />}
       />
-    </Space>
+    </div>
   ), [searchPlaceholder, handleSearch, dateRange, searchText]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 rounded-xl bg-white p-6 shadow-sm border border-border">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
         {SearchComponent}
-        {extraActions}
+        <div className="flex items-center gap-2">
+          {extraActions}
+        </div>
       </div>
 
       <Table
@@ -101,6 +99,8 @@ function DataTable<T extends { id: number | string }>({
         loading={loading}
         pagination={paginationConfig}
         onChange={handleTableChange}
+        // Tailwind 폰트 토큰과 매끄럽게 연결되도록 커스텀 클래스 지정
+        className="[&_.ant-table-thead>tr>th]:bg-secondary [&_.ant-table-thead>tr>th]:text-muted-foreground [&_.ant-table-thead>tr>th]:font-semibold"
       />
     </div>
   );

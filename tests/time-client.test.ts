@@ -44,6 +44,34 @@ describe('time-management browser client', () => {
     ])
   })
 
+  it('keeps the generated requestId for retried PATCH revisions', async () => {
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse({ entry: {} }))
+    const client = createTimeClient({ fetchImpl, requestId: () => 'revision-request' })
+    const revision = client.createMutation('PATCH', '/entries/11111111-1111-4111-8111-111111111111', {
+      notes: 'Updated client note',
+    })
+
+    await revision()
+    await revision()
+
+    expect(fetchImpl.mock.calls.map(([url, init]) => ({
+      url,
+      method: init?.method,
+      body: JSON.parse(String(init?.body)),
+    }))).toEqual([
+      {
+        url: '/api/time-management/entries/11111111-1111-4111-8111-111111111111',
+        method: 'PATCH',
+        body: { notes: 'Updated client note', requestId: 'revision-request' },
+      },
+      {
+        url: '/api/time-management/entries/11111111-1111-4111-8111-111111111111',
+        method: 'PATCH',
+        body: { notes: 'Updated client note', requestId: 'revision-request' },
+      },
+    ])
+  })
+
   it('allows an encoded query while keeping it on the same-origin proxy path', async () => {
     const fetchImpl = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse({ data: [] }))
     const client = createTimeClient({ fetchImpl })

@@ -80,6 +80,10 @@ export function createTimeClient(options: ClientOptions = {}) {
     put: <T>(path: string, body?: unknown) => request<T>('PUT', path, body),
     patch: <T>(path: string, body?: unknown) => request<T>('PATCH', path, body),
     delete: <T>(path: string) => request<T>('DELETE', path),
+    createMutation<T>(method: 'POST' | 'PATCH' | 'PUT' | 'DELETE', path: string, body: Record<string, unknown> = {}): TimeCommand<T> {
+      const requestId = nextRequestId()
+      return () => request<T>(method, path, { ...body, requestId })
+    },
     createCommand<T>(path: string, body: Record<string, unknown> = {}): TimeCommand<T> {
       const requestId = nextRequestId()
       return () => request<T>('POST', path, { ...body, requestId })

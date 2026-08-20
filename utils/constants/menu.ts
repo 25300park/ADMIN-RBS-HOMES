@@ -42,6 +42,32 @@ export const TIME_MENU_ITEMS: MenuItemType[] = [
     path: "/time-management",
     description: "Plan, record, and review your daily work time",
     allowedLevels: [...TIME_ACCESS_LEVELS],
+    children: [
+      {
+        key: "time-management-today",
+        iconName: "CalendarOutlined",
+        label: "Today",
+        path: "/time-management/today",
+        description: "Plan today and manage the active work timer",
+        allowedLevels: [...TIME_ACCESS_LEVELS],
+      },
+      {
+        key: "time-management-records",
+        iconName: "UnorderedListOutlined",
+        label: "Records",
+        path: "/time-management/records",
+        description: "Review and correct recorded work time",
+        allowedLevels: [...TIME_ACCESS_LEVELS],
+      },
+      {
+        key: "time-management-review",
+        iconName: "FileTextOutlined",
+        label: "Review",
+        path: "/time-management/review",
+        description: "Write and review daily reflections",
+        allowedLevels: [...TIME_ACCESS_LEVELS],
+      },
+    ],
   },
 ];
 

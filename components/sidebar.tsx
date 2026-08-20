@@ -5,10 +5,11 @@ import Link from "next/link";
 import {
   Users, Home, Calendar, LayoutDashboard, FileCheck, Star,
   MessageSquare, Contact, Mail, FileText, Send, List,
-  Landmark, DollarSign, Wrench, MessageCircle
+  Landmark, DollarSign, Wrench, MessageCircle, X
 } from "lucide-react";
 import type { MenuItemType } from "@/utils/constants/menu";
 import type { MenuProps } from "antd";
+import { useEffect } from "react";
 
 const IconMap: Record<string, React.ElementType> = {
   TeamOutlined: Users,
@@ -33,9 +34,20 @@ interface SidebarProps {
   collapsed: boolean;
   menus: MenuItemType[];
   currentPath: string;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export default function Sidebar({ collapsed, menus, currentPath }: SidebarProps) {
+export default function Sidebar({ collapsed, menus, currentPath, mobileOpen = false, onMobileClose }: SidebarProps) {
+  useEffect(() => {
+    if (!mobileOpen) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onMobileClose?.()
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [mobileOpen, onMobileClose])
+
   const buildMenuItems = (menuItems: MenuItemType[]): MenuProps["items"] => {
     return menuItems.map((item) => {
       const IconComponent = IconMap[item.iconName] || FileText;
@@ -77,19 +89,14 @@ export default function Sidebar({ collapsed, menus, currentPath }: SidebarProps)
     return keys;
   };
 
-  return (
-    <aside
-      className={`fixed left-0 top-0 z-40 h-screen bg-background border-r border-border transition-all duration-300 ${
-        collapsed ? "w-20" : "w-64"
-      }`}
-    >
+  const content = (mobile = false) => <>
       <div className="flex h-16 items-center justify-center border-b border-border">
         <Link href="/" className="flex items-center gap-2">
           {/* 브랜드 포인트 컬러로 강조 */}
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
             R
           </div>
-          {!collapsed && (
+          {(mobile || !collapsed) && (
             <span className="text-lg font-bold tracking-tight text-foreground">
               RBS HOMES
             </span>
@@ -103,8 +110,47 @@ export default function Sidebar({ collapsed, menus, currentPath }: SidebarProps)
           defaultOpenKeys={getOpenKeys()}
           className="border-none bg-transparent px-2 py-4"
           items={buildMenuItems(menus)}
+          onClick={mobile ? onMobileClose : undefined}
         />
       </div>
-    </aside>
+    </>;
+
+  return (
+    <>
+      <aside
+        data-testid="desktop-sidebar"
+        className={`fixed left-0 top-0 z-40 hidden h-screen bg-background border-r border-border transition-all duration-300 md:block ${
+          collapsed ? "w-20" : "w-64"
+        }`}
+      >
+        {content()}
+      </aside>
+      {mobileOpen && (
+        <div className="fixed inset-0 z-[60] md:hidden">
+          <button
+            type="button"
+            aria-label="Close navigation backdrop"
+            className="absolute inset-0 bg-black/40"
+            onClick={onMobileClose}
+          />
+          <aside
+            role="dialog"
+            aria-label="Navigation"
+            aria-modal="true"
+            className="relative h-full w-72 max-w-[85vw] bg-background shadow-xl"
+          >
+            <button
+              type="button"
+              aria-label="Close navigation"
+              className="absolute right-2 top-2 z-10 flex min-h-11 min-w-11 items-center justify-center rounded-lg outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={onMobileClose}
+            >
+              <X size={20} />
+            </button>
+            {content(true)}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

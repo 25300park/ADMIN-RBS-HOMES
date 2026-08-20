@@ -1,0 +1,15 @@
+{
+  "key": "0123456789abcdef0123456789abcdef",
+  "kid": "current",
+  "method": "POST",
+  "pathAndQuery": "/internal/time-management/entries/timer/start?a=first&a=space%20value&filter=%ED%95%9C%EA%B8%80&z=last",
+  "issuedAt": 1787227200,
+  "expiresAt": 1787227260,
+  "nonce": "550e8400-e29b-41d4-a716-446655440000",
+  "externalUserId": "84521",
+  "role": "agent",
+  "body": "{\"requestId\":\"golden-1\",\"notes\":\"서울 고객 응대\"}",
+  "bodyDigest": "44d8cce81617a3197082200832f3e94b5bef497a4ab2cde11c4b40a160598cd3",
+  "canonical": "TIME-BFF-HMAC-SHA256-V1\ncurrent\nPOST\n/internal/time-management/entries/timer/start?a=first&a=space%20value&filter=%ED%95%9C%EA%B8%80&z=last\n1787227200\n1787227260\n550e8400-e29b-41d4-a716-446655440000\n84521\nagent\n44d8cce81617a3197082200832f3e94b5bef497a4ab2cde11c4b40a160598cd3",
+  "signature": "rLinqD7MM4I7wdcTyzAD3t6qUZLzFUWETugs7O5kYHY"
+}

@@ -1,6 +1,30 @@
-//  엑셀 다운로드 함수 02/25 추가
-import { saveAs } from "file-saver";
-import * as XLSX from "xlsx";
+import writeExcelFile from 'write-excel-file/browser'
+
+type ExcelCell = string | number | boolean | Date | null
+
+function normalizeCell(value: unknown): ExcelCell {
+  if (value == null) return null
+  if (value instanceof Date) return value
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
+export function toSheetData(data: Array<Record<string, unknown>>): ExcelCell[][] {
+  if (data.length === 0) return []
+
+  const columns = Array.from(new Set(data.flatMap((row) => Object.keys(row))))
+  return [
+    columns,
+    ...data.map((row) => columns.map((column) => normalizeCell(row[column]))),
+  ]
+}
 
 /**
  * 데이터를 엑셀 파일로 변환하고 다운로드하는 함수
@@ -9,29 +33,14 @@ import * as XLSX from "xlsx";
  * @param sheetName 엑셀 시트 이름 (기본값: "Sheet1")
  */
 
-export const exportToExcel = (
-  data: any[],
-  fileName = "data",
-  sheetName = "Sheet1"
-) => {
+export const exportToExcel = async (
+  data: Array<Record<string, unknown>>,
+  fileName = 'data',
+  sheetName = 'Sheet1'
+): Promise<void> => {
   try {
-    // 1. JSON 데이터를 엑셀 형식으로 변환
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
-    // 3. 파일 다운로드 실행
-    const fullFileName = `${fileName}.xlsx`;
-    saveAs(blob, fullFileName);
+    await writeExcelFile(toSheetData(data), { sheet: sheetName }).toFile(`${fileName}.xlsx`)
   } catch (error) {
-    console.error("Excel download failed", error);
+    console.error('Excel download failed', error)
   }
-};
+}

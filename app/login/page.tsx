@@ -26,7 +26,7 @@ export default function LoginPage() {
         email: values.email,
         password: values.password,
         redirect: false,
-        callbackUrl: '/',
+        callbackUrl: result.destination,
       })
 
       if (signInResult?.error) {
@@ -34,7 +34,7 @@ export default function LoginPage() {
         return
       }
 
-      router.push('/')
+      router.push(result.destination)
       router.refresh()
 
     } catch (error) {

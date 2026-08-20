@@ -32,6 +32,19 @@ export type MenuItemType = {
   children?: MenuItemType[]; // 서브메뉴를 위한 필드 추가
 };
 
+export const TIME_ACCESS_LEVELS = [0, 10, 2, 3, 20, 30] as const;
+
+export const TIME_MENU_ITEMS: MenuItemType[] = [
+  {
+    key: "time-management",
+    iconName: "CalendarOutlined",
+    label: "Time Management",
+    path: "/time-management",
+    description: "Plan, record, and review your daily work time",
+    allowedLevels: [...TIME_ACCESS_LEVELS],
+  },
+];
+
 export const MENU_ITEMS: MenuItemType[] = [
   {
     key: "Dashboard",
@@ -188,4 +201,5 @@ export const MENU_ITEMS: MenuItemType[] = [
     description: "Manage condo community board posts",
     allowedLevels: [ADMIN_LEVEL.SUPER_ADMIN, ADMIN_LEVEL.ADMIN],
   },
+  ...TIME_MENU_ITEMS,
 ];

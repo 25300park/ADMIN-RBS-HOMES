@@ -1,81 +1,89 @@
-// lib/auth-options.ts
-import type { NextAuthOptions } from 'next-auth'
+import type { NextAuthOptions, User } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import { ADMIN_LEVEL, type AdminLevel } from '@/utils/constants'
+import { isEligibleCrmUser, normalizeTimeRole, type TimeRole } from '@/lib/auth-policy'
+import { crmRepository, type CrmRepository } from '@/lib/crm/repository'
+
+type PasswordComparer = (plainText: string, passwordHash: string) => Promise<boolean>
+
+type CredentialsAuthorizerDependencies = {
+  repository: CrmRepository
+  comparePassword: PasswordComparer
+}
+
+export type AuthenticatedCrmUser = User & {
+  id: string
+  username: string
+  email: string
+  level: number
+  timeRole: TimeRole
+}
+
+export function createCredentialsAuthorizer({
+  repository,
+  comparePassword,
+}: CredentialsAuthorizerDependencies) {
+  return async function authorize(
+    credentials: { email?: string; password?: string } | undefined,
+  ): Promise<AuthenticatedCrmUser | null> {
+    if (!credentials?.email || !credentials.password) return null
+
+    try {
+      const user = await repository.findUserByEmail(credentials.email)
+      if (!user?.password || !isEligibleCrmUser(user)) return null
+
+      const timeRole = normalizeTimeRole(user.level)
+      if (!timeRole || !(await comparePassword(credentials.password, user.password))) return null
+
+      return {
+        id: String(user.id),
+        username: user.username ?? '',
+        email: user.email ?? '',
+        level: user.level,
+        timeRole,
+      }
+    } catch {
+      console.error('CRM authentication failed')
+      return null
+    }
+  }
+}
+
+export const authorizeCrmCredentials = createCredentialsAuthorizer({
+  repository: crmRepository,
+  comparePassword: bcrypt.compare,
+})
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" }
+        email: { label: 'Email', type: 'text' },
+        password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
-        try {
-          if (!credentials?.email || !credentials?.password) {
-            return null
-          }
-
-          const user = await prisma.user.findUnique({
-            where: {
-              email: credentials.email   
-            },
-          })
-
-          if (!user || !user.password || 
-              (user.level !== ADMIN_LEVEL.SUPER_ADMIN && 
-               user.level !== ADMIN_LEVEL.ADMIN)) {
-            return null
-          }
-
-          const isValid = await bcrypt.compare(
-            credentials.password, 
-            user.password
-          )
-
-          if (!isValid) {
-            return null
-          }
-
-          return {
-            id: user.id.toString(),
-            username: user.username || '',
-            email: user.email || '',
-            level: user.level,
-          }
-        } catch (error) {
-          console.error('Auth error:', error)
-          return null
-        }
-      }
-    })
+      authorize: authorizeCrmCredentials,
+    }),
   ],
-  pages: {
-    signIn: '/login',
-  },
-  session: {
-    strategy: 'jwt',
-    maxAge: 24 * 60 * 60,
-  },
+  pages: { signIn: '/login' },
+  session: { strategy: 'jwt', maxAge: 24 * 60 * 60 },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.username = user.username
-        token.level = user.level
+        const authenticatedUser = user as AuthenticatedCrmUser
+        token.id = authenticatedUser.id
+        token.username = authenticatedUser.username
+        token.level = authenticatedUser.level
+        token.timeRole = authenticatedUser.timeRole
       }
       return token
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string
-        session.user.username = token.username as string
-        session.user.level = token.level as AdminLevel
-      }
+      session.user.id = token.id
+      session.user.username = token.username
+      session.user.level = token.level
+      session.user.timeRole = token.timeRole
       return session
-    }
-  }
+    },
+  },
 }

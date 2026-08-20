@@ -1,34 +1,15 @@
 'use server'
 
-import prisma from '@/lib/prisma'
-import bcrypt from 'bcryptjs'
+import { authorizeCrmCredentials } from '@/lib/auth-options'
 
-export async function login(
-  email: string,
-  password: string,
-) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { email }
-    })
-    console.log(user)
-    if (!user) {
-      return { error: 'CREDENTIALS', message: 'Invalid username' }
-    }
-
-    if (user.level !== 0) {
-      return { error: 'NOTADMIN', message: 'You do not have administrator privileges' }
-    }
-    const isValid = await bcrypt.compare(password, user.password || '')
-    
-    if (!isValid) {
-      return { error: 'CREDENTIALS', message: 'Invalid password' }
-    }
-
-    return { success: true, user }
-
-  } catch (error) {
-    console.error('Login error:', error)
-    return { error: 'SERVER', message: 'A server error occurred' }
+export async function login(email: string, password: string) {
+  const user = await authorizeCrmCredentials({ email, password })
+  if (!user) {
+    return { error: 'CREDENTIALS', message: 'Invalid email or password' } as const
   }
+
+  return {
+    success: true,
+    destination: user.timeRole === 'admin' ? '/' : '/time-management',
+  } as const
 }

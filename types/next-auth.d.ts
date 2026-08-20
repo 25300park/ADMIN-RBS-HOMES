@@ -1,6 +1,5 @@
-import "next-auth";
-import { JWT } from "next-auth/jwt";
-import { AdminLevel } from '@/utils/constants/menu'
+import 'next-auth'
+import type { TimeRole } from '@/lib/auth-policy'
 
 declare module 'next-auth' {
   interface Session {
@@ -8,7 +7,8 @@ declare module 'next-auth' {
       id: string
       email: string
       username: string
-      level: AdminLevel
+      level: number
+      timeRole: TimeRole
     }
   }
 
@@ -16,7 +16,8 @@ declare module 'next-auth' {
     id: string
     email: string
     username: string
-    level: AdminLevel
+    level: number
+    timeRole: TimeRole
   }
 }
 
@@ -25,6 +26,7 @@ declare module 'next-auth/jwt' {
     id: string
     email: string
     username: string
-    level: AdminLevel
+    level: number
+    timeRole: TimeRole
   }
 }

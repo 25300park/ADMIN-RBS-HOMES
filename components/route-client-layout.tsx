@@ -12,9 +12,10 @@ import type { MenuItemType } from "@/utils/constants/menu";
 interface LayoutProps {
   children: React.ReactNode;
   authorizedMenus: MenuItemType[];
+  showAdminAlerts?: boolean;
 }
 
-export default function RouteClientLayout({ children, authorizedMenus }: LayoutProps) {
+export default function RouteClientLayout({ children, authorizedMenus, showAdminAlerts = true }: LayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { data: session, status } = useSession();
@@ -59,7 +60,12 @@ export default function RouteClientLayout({ children, authorizedMenus }: LayoutP
           collapsed ? "ml-20" : "ml-64"
         }`}
       >
-        <Header collapsed={collapsed} setCollapsed={setCollapsed} email={session?.user?.email || ""} />
+        <Header
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+          email={session?.user?.email || ""}
+          showAdminAlerts={showAdminAlerts}
+        />
         
         {/* 내부 컨테이너 (여백 24px) */}
         <div className="flex-1 p-6 space-y-6">

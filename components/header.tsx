@@ -26,17 +26,19 @@ interface HeaderProps {
   collapsed: boolean
   setCollapsed: (collapsed: boolean) => void
   email: string
+  showAdminAlerts?: boolean
 }
 
-export default function Header({ collapsed, setCollapsed, email }: HeaderProps) {
+export default function Header({ collapsed, setCollapsed, email, showAdminAlerts = true }: HeaderProps) {
   const router = useRouter()
   const [alerts, setAlerts] = useState<AlertCounts>({ scheduleAlert: 0, complainUnitAlert: 0, contactAlert: 0 })
 
   useEffect(() => {
+    if (!showAdminAlerts) return
     fetchAlerts()
     const interval = setInterval(fetchAlerts, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [showAdminAlerts])
 
   const fetchAlerts = async () => {
     try {
@@ -116,20 +118,24 @@ export default function Header({ collapsed, setCollapsed, email }: HeaderProps) 
       </div>
 
       <div className="flex items-center gap-6">
-        <Dropdown menu={{ items: alertMenuItems }} trigger={['click']} placement="bottomRight">
-          <div className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors">
-            <Bell size={20} />
-            {totalAlerts > 0 && (
-              <Badge 
-                count={totalAlerts > 99 ? '99+' : totalAlerts}
-                className="absolute -top-1 -right-1"
-                style={{ backgroundColor: 'hsl(var(--destructive))' }}
-              />
-            )}
-          </div>
-        </Dropdown>
+        {showAdminAlerts && (
+          <>
+            <Dropdown menu={{ items: alertMenuItems }} trigger={['click']} placement="bottomRight">
+              <div className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors">
+                <Bell size={20} />
+                {totalAlerts > 0 && (
+                  <Badge
+                    count={totalAlerts > 99 ? '99+' : totalAlerts}
+                    className="absolute -top-1 -right-1"
+                    style={{ backgroundColor: 'hsl(var(--destructive))' }}
+                  />
+                )}
+              </div>
+            </Dropdown>
 
-        <div className="h-6 w-px bg-border" />
+            <div className="h-6 w-px bg-border" />
+          </>
+        )}
 
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
           <div className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 hover:bg-muted transition-colors">

@@ -4,12 +4,14 @@ import { redirect } from "next/navigation";
 import RouteClientLayout from "@/components/route-client-layout";
 import { MENU_ITEMS, ROUTES } from "@/utils/constants";
 import { AuthProvider } from "@/providers";
+import { requireAdminSession } from "@/lib/server-auth";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const actor = await requireAdminSession();
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -17,7 +19,7 @@ export default async function AdminLayout({
   }
 
   const authorizedMenus = MENU_ITEMS.filter((menu) =>
-    menu.allowedLevels.includes(session.user.level)
+    menu.allowedLevels.includes(actor.level)
   );
 
   return (

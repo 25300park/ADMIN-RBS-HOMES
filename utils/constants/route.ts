@@ -10,4 +10,6 @@ export const ROUTES = {
   FEATURED: "/featured",
   COMPLAIN: "/complain",
   CONTACT: "/contact",
+  TIME_MANAGEMENT: "/time-management",
+  TIME_PENDING: "/time-management/pending",
 } as const;

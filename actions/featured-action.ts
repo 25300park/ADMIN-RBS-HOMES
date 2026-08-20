@@ -1,5 +1,7 @@
 "use server";
 
+import { requireAdminSession } from "@/lib/server-auth";
+
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -10,6 +12,7 @@ export async function getAllUnits(
   limit = 10,
   featuredOnly = false
 ) {
+  await requireAdminSession()
   const skip = (page - 1) * limit;
 
   // featuredOnly가 true일 때는 FeaturedUnit 테이블에서 unitId 목록을 먼저 가져옴
@@ -86,6 +89,7 @@ export async function getAllUnits(
 
 // featured 설정
 export async function setFeatured(unitId: number, label: string) {
+  await requireAdminSession()
   const lastUnit = await prisma.featuredUnit.findFirst({
     orderBy: { order: "desc" },
   });
@@ -104,6 +108,7 @@ export async function setFeatured(unitId: number, label: string) {
 
 // featured 해제
 export async function removeFeatured(unitId: number) {
+  await requireAdminSession()
   const featuredUnit = await prisma.featuredUnit.findFirst({
     where: {
       unitId: unitId,

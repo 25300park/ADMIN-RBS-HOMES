@@ -1,5 +1,7 @@
 "use server";
 
+import { requireAdminSession } from "@/lib/server-auth";
+
 import prisma from "@/lib/prisma";
 import type { SearchParams } from "@/types/table";
 
@@ -74,6 +76,7 @@ function getWhereClause(params: SearchParams): Record<string, any> {
   return where;
 }
 export async function getUsers(params: SearchParams) {
+  await requireAdminSession()
   try {
     const { page = 1, limit = 10, sort = "id", order = "desc" } = params;
     const where = getWhereClause(params);
@@ -132,6 +135,7 @@ export async function getUsers(params: SearchParams) {
 }
 
 export async function getUserDetail(id: number) {
+  await requireAdminSession()
   try {
     const user = await prisma.user.findUnique({
       where: { id },
@@ -200,6 +204,7 @@ export async function getUserLoginLogs({
   page,
   pageSize,
 }: LoginLogParams) {
+  await requireAdminSession()
   try {
     const [total, logs] = await Promise.all([
       prisma.loginLog.count({
@@ -245,6 +250,7 @@ export async function updateUser({
   memo,
   level,
 }: UpdateUserParams) {
+  await requireAdminSession()
   try {
     const updatedUser = await prisma.user.update({
       where: { id },

@@ -1,5 +1,7 @@
 'use server'
 
+import { requireAdminSession } from "@/lib/server-auth";
+
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -18,6 +20,7 @@ export async function createMessageTemplate(data: {
   description?: string;
   type?: number;
 }) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -49,6 +52,7 @@ export async function createMessageTemplate(data: {
  * 메시지 템플릿 목록 조회
  */
 export async function getMessageTemplates() {
+  await requireAdminSession()
   try {
     const templates = await prisma.messageTemplate.findMany({
       where: { isActive: true },
@@ -85,6 +89,7 @@ export async function getMessageTemplates() {
  * 메시지 템플릿 삭제 (소프트 삭제)
  */
 export async function deleteMessageTemplate(id: number) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -129,6 +134,7 @@ export async function updateMessageTemplate(
     type?: number;
   }
 ) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -176,6 +182,7 @@ export async function createMessageGroup(data: {
   description?: string;
   memberIds: number[];
 }) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -229,6 +236,7 @@ export async function createMessageGroup(data: {
  * 사용자의 메시지 그룹 목록 조회
  */
 export async function getUserMessageGroups() {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -291,6 +299,7 @@ export async function sendDirectMessage(data: {
   priority?: number;
   templateId?: number;
 }) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -384,6 +393,7 @@ export async function sendBroadcastMessage(data: {
   priority?: number;
   templateId?: number;
 }) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -481,6 +491,7 @@ export async function sendToGroup(data: {
   priority?: number;
   templateId?: number;
 }) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -590,6 +601,7 @@ export async function sendToGroup(data: {
  * 받은 메시지 목록 조회
  */
 export async function getReceivedMessages(page: number = 1, limit: number = 20) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -662,6 +674,7 @@ export async function getReceivedMessages(page: number = 1, limit: number = 20) 
  * 발송 메시지 목록 조회
  */
 export async function getSentMessages(page: number = 1, limit: number = 20) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -715,6 +728,7 @@ export async function getSentMessages(page: number = 1, limit: number = 20) {
  * 메시지 삭제 (알림도 함께 삭제)
  */
 export async function deleteMessage(messageId: number) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -763,6 +777,7 @@ export async function deleteMessage(messageId: number) {
  * 여러 메시지 일괄 삭제 (알림도 함께 삭제)
  */
 export async function deleteMultipleMessages(messageIds: number[]) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -825,6 +840,7 @@ export async function deleteMultipleMessages(messageIds: number[]) {
  * 모든 메시지 조회 (Notification 기반 읽음 상태)
  */
 export async function getAllMessages(page: number = 1, limit: number = 20) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -897,6 +913,7 @@ export async function getAllMessages(page: number = 1, limit: number = 20) {
  * 메시지 읽음 처리
  */
 export async function markMessageAsRead(messageId: number) {
+  await requireAdminSession()
   try {
     const session: any = await getServerSession(authOptions as any);
     
@@ -944,6 +961,7 @@ export async function markMessageAsRead(messageId: number) {
  * 사용자 검색 (이름, 이메일로 검색)
  */
 export async function searchUsers(keyword: string, limit: number = 8) {
+  await requireAdminSession()
   try {
     if (!keyword || keyword.trim().length === 0) {
       return { success: true, users: [] };

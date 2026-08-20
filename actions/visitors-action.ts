@@ -1,5 +1,7 @@
 "use server";
 
+import { requireAdminSession } from "@/lib/server-auth";
+
 import prisma from "@/lib/prisma";
 import { DateFilter } from "@/types/dashboard";
 
@@ -35,6 +37,7 @@ function getDateRange(dateFilter: DateFilter) {
 }
 
 export async function getVisitorStats(dateFilter: DateFilter) {
+  await requireAdminSession()
   try {
     const dateRange = getDateRange(dateFilter);
 

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireAdminSession } from "@/lib/server-auth";
+
 import prisma from "@/lib/prisma";
 import type { SearchParams } from "@/types/table";
 
@@ -122,6 +124,7 @@ function getWhereClause(params: SearchParams): Record<string, any> {
 }
 
 export async function getUnits(params: SearchParams) {
+  await requireAdminSession()
   try {
     const {
       page = 1,
@@ -201,6 +204,7 @@ export async function updateUnitStatus({
   id: number;
   status: number;
 }) {
+  await requireAdminSession()
   try {
     await prisma.unit.update({
       where: { id },
@@ -222,6 +226,7 @@ export async function updateUnitStatus({
 }
 
 export async function getUnitDetail(id: number): Promise<SerializedUnit> {
+  await requireAdminSession()
   try {
     const unit = await prisma.unit.findUnique({
       where: { id },
@@ -305,6 +310,7 @@ interface UpdateUnitParams {
 }
 
 export async function getAgentOptions() {
+  await requireAdminSession()
   const agents = await prisma.user.findMany({
     where: { level: { in: [2, 3] } },
     select: { id: true, name: true, email: true },
@@ -315,6 +321,7 @@ export async function getAgentOptions() {
 
 // [02-25 추가] 매물 정보 업데이트 함수
 export async function updateUnit({ id, ...data }: UpdateUnitParams) {
+  await requireAdminSession()
   try {
     const updatedUnit = await prisma.unit.update({
       where: { id },

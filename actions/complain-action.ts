@@ -1,5 +1,7 @@
 "use server";
 
+import { requireAdminSession } from "@/lib/server-auth";
+
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
 import type { SearchParams } from "@/types/table";
@@ -46,6 +48,7 @@ function getWhereClause(params: SearchParams): Record<string, any> {
 }
 
 export async function getComplains(params: SearchParams) {
+  await requireAdminSession()
   try {
     const { page = 1, limit = 10, sort = "id", order = "desc" } = params;
     const where = getWhereClause(params);
@@ -126,6 +129,7 @@ export async function getComplains(params: SearchParams) {
 }
 
 export async function getComplainDetail(id: number) {
+  await requireAdminSession()
   try {
     const complain = await prisma.complainUnit.findUnique({
       where: { id },
@@ -203,6 +207,7 @@ export async function updateComplainStatus({
   response,
   responseType,
 }: ComplainStatusChangeProps) {
+  await requireAdminSession()
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

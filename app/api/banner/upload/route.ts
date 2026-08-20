@@ -2,6 +2,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth'; 
 import { authOptions } from '@/lib/auth-options';
+import { withAdminRoute } from '@/lib/admin-route';
 
 const s3Client = new S3Client({
   region: process.env.NEXT_PUBLIC_AWS_REGION as string,
@@ -11,7 +12,7 @@ const s3Client = new S3Client({
   },
 });
 
-export async function POST(req: Request) {
+async function upload(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.id) {
@@ -55,3 +56,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Error' }, { status: 500 });
   }
 }
+
+export const POST = withAdminRoute(upload)

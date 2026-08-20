@@ -1,6 +1,8 @@
 // actions/popup-actions.ts
 "use server";
 
+import { requireAdminSession } from "@/lib/server-auth";
+
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -37,6 +39,7 @@ export interface GetPopupsParams {
 
 // 팝업 생성
 export async function createPopup(data: CreatePopupData) {
+  await requireAdminSession()
   try {
     const popup = await prisma.popup.create({
       data: {
@@ -84,6 +87,7 @@ export async function getPopups({
   isActive,
   popupType,
 }: GetPopupsParams = {}) {
+  await requireAdminSession()
   try {
     const skip = (page - 1) * limit;
     
@@ -133,6 +137,7 @@ export async function getPopups({
 
 // 팝업 상세 조회
 export async function getPopupById(id: number) {
+  await requireAdminSession()
   try {
     const popup = await prisma.popup.findUnique({
       where: { id },
@@ -154,6 +159,7 @@ export async function getPopupById(id: number) {
 
 // 팝업 수정
 export async function updatePopup(id: number, data: Partial<CreatePopupData>) {
+  await requireAdminSession()
   try {
     const popup = await prisma.popup.update({
       where: { id },
@@ -180,6 +186,7 @@ export async function updatePopup(id: number, data: Partial<CreatePopupData>) {
 
 // 팝업 삭제
 export async function deletePopup(id: number) {
+  await requireAdminSession()
   try {
     await prisma.popup.delete({
       where: { id },
@@ -201,6 +208,7 @@ export async function deletePopup(id: number) {
 
 // 팝업 활성화/비활성화 토글
 export async function togglePopupStatus(id: number) {
+  await requireAdminSession()
   try {
     const currentPopup = await prisma.popup.findUnique({
       where: { id },

@@ -74,6 +74,7 @@ test('allow-list admits only existing method and route families', () => {
   expect(isAllowedTimeRoute('GET', '/entries')).toBe(true)
   expect(isAllowedTimeRoute('POST', '/entries/timer/start')).toBe(true)
   expect(isAllowedTimeRoute('PUT', '/members/84521')).toBe(true)
+  expect(isAllowedTimeRoute('GET', '/members')).toBe(true)
   expect(isAllowedTimeRoute('DELETE', '/entries')).toBe(false)
   expect(isAllowedTimeRoute('DELETE', '/categories')).toBe(false)
   expect(isAllowedTimeRoute('POST', '/plans/today')).toBe(false)

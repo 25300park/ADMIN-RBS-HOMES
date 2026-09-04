@@ -34,6 +34,7 @@ const ROUTES: ReadonlyArray<[string, RegExp]> = [
   ['GET', /^\/push\/(?:vapid-public-key|reminders\/pending)$/],
   ['POST', /^\/push\/subscriptions$/],
   ['DELETE', /^\/push\/subscriptions$/],
+  ['GET', /^\/members$/],
   ['PUT', /^\/members\/[1-9]\d*$/],
 ]
 

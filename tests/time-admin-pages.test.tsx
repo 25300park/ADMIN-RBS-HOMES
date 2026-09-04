@@ -15,7 +15,7 @@ describe('time administration pages', () => {
   it('activates a CRM directory member through the server-derived activation endpoint', async () => {
     const client = {
       get: vi.fn(async (path: string) => {
-        if (path.startsWith('/admin/member-directory')) return { members: [{ externalUserId: '84521', name: 'Agent Kim', level: 20, timeRole: 'agent' }] }
+        if (path.startsWith('/admin/member-directory')) return { data: [{ externalUserId: '84521', name: 'Agent Kim', level: 20, timeRole: 'agent' }] }
         if (path === '/members?externalUserIds=84521') return { members: [] }
         throw new Error(`Unexpected GET ${path}`)
       }),
@@ -39,7 +39,7 @@ describe('time administration pages', () => {
   it('requires confirmation before deactivation and keeps the member history message intact', async () => {
     const client = {
       get: vi.fn(async (path: string) => path.startsWith('/admin/member-directory')
-        ? { members: [{ externalUserId: '84521', name: 'Agent Kim', level: 20, timeRole: 'agent' }] }
+        ? { data: [{ externalUserId: '84521', name: 'Agent Kim', level: 20, timeRole: 'agent' }] }
         : { members: [{ externalUserId: '84521', role: 'agent', isActive: true }] }),
     }
     const fetchImpl = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ id: 'time-user-1', name: 'Agent Kim', role: 'agent', isActive: false }))

@@ -25,9 +25,9 @@ export default function AdminMembersPage({ client = timeClient, fetchImpl = fetc
   const [updatedStates, setUpdatedStates] = useState<Record<string, boolean>>({})
   const directory = useQuery({
     queryKey: ['time-management', 'admin', 'member-directory', query],
-    queryFn: () => client.get<{ members: DirectoryMember[] }>(`/admin/member-directory?q=${encodeURIComponent(query)}&limit=50`),
+    queryFn: () => client.get<{ data: DirectoryMember[] }>(`/admin/member-directory?q=${encodeURIComponent(query)}&limit=50`),
   })
-  const externalUserIds = useMemo(() => directory.data?.members.map((member) => member.externalUserId) ?? [], [directory.data])
+  const externalUserIds = useMemo(() => directory.data?.data.map((member) => member.externalUserId) ?? [], [directory.data])
   const mappings = useQuery({
     queryKey: ['time-management', 'admin', 'member-mappings', externalUserIds],
     enabled: externalUserIds.length > 0,
@@ -56,7 +56,7 @@ export default function AdminMembersPage({ client = timeClient, fetchImpl = fetc
         {(directory.isPending || mappings.isPending) && <p role="status">Loading members…</p>}
         {(directory.error || mappings.error || error) && <Alert role="alert" type="error" showIcon message="Member access could not be loaded or updated." />}
         <div className="space-y-3">
-          {(directory.data?.members ?? []).map((member) => {
+          {(directory.data?.data ?? []).map((member) => {
             const active = isActive(member.externalUserId)
             const action = active ? 'Deactivate' : 'Activate'
             return <article key={member.externalUserId} className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">

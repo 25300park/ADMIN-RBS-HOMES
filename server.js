@@ -11,6 +11,9 @@ const handle = app.getRequestHandler()
 app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
+      // CVE-2025-29927 완화: 외부 요청의 내부용 헤더 제거 (미들웨어 우회 방지)
+      delete req.headers['x-middleware-subrequest'];
+
       // 프로덕션 환경에서 호스트 헤더 설정
       if (!dev) {
         // x-forwarded-host 헤더를 실제 도메인으로 설정
@@ -23,18 +26,8 @@ app.prepare().then(() => {
 
       // 요청 정보 로깅
       console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-      console.log('Headers:', req.headers);
 
       const parsedUrl = parse(req.url, true)
-      
-      // auth 관련 요청 로깅
-      if (parsedUrl.pathname?.includes('/api/auth')) {
-        console.log('Auth request:', {
-          pathname: parsedUrl.pathname,
-          query: parsedUrl.query,
-          headers: req.headers
-        });
-      }
 
       await handle(req, res, parsedUrl)
     } catch (err) {

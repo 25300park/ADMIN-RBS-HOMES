@@ -1,7 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from "@/lib/auth-options";
+import { checkAdmin } from '@/lib/require-admin';
 
 const s3Client = new S3Client({
   region: process.env.NEXT_PUBLIC_AWS_REGION,
@@ -13,12 +12,14 @@ const s3Client = new S3Client({
 
 export async function POST(req) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'User is not authenticated' }, { status: 401 });
+    const admin = await checkAdmin();
+    if (!admin.ok) {
+      return NextResponse.json(
+        { error: admin.status === 401 ? 'User is not authenticated' : 'Forbidden' },
+        { status: admin.status }
+      );
     }
-    
-    const userId = session.user.id;
+    const userId = admin.session.user.id;
     const formData = await req.formData();
     const file = formData.get('file'); // TinyMCE는 단일 파일
 

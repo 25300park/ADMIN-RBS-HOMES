@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from "@/lib/require-admin";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -21,6 +22,7 @@ export async function getAlertCounts(): Promise<{
   data?: AlertCounts;
   error?: string;
 }> {
+  await requireAdmin();
   try {
     const session: any = await getServerSession(authOptions as any);
 
@@ -67,6 +69,7 @@ export async function getAlertDetails(limit: number = 5): Promise<{
   };
   error?: string;
 }> {
+  await requireAdmin();
   try {
     const session: any = await getServerSession(authOptions as any);
 

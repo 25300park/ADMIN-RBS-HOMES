@@ -3,7 +3,8 @@ import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import { ADMIN_LEVEL, type AdminLevel } from '@/utils/constants'
+import { type AdminLevel } from '@/utils/constants'
+import { isAdminClaim } from '@/lib/require-admin'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -25,9 +26,8 @@ export const authOptions: NextAuthOptions = {
             },
           })
 
-          if (!user || !user.password || 
-              (user.level !== ADMIN_LEVEL.SUPER_ADMIN && 
-               user.level !== ADMIN_LEVEL.ADMIN)) {
+          // 허용 조건: isSuperAdmin === true (level은 보지 않는다)
+          if (!user || !user.password || !isAdminClaim(user)) {
             return null
           }
 
@@ -44,7 +44,8 @@ export const authOptions: NextAuthOptions = {
             id: user.id.toString(),
             username: user.username || '',
             email: user.email || '',
-            level: user.level,
+            level: user.level as AdminLevel,
+            isSuperAdmin: user.isSuperAdmin,
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -66,6 +67,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         token.username = user.username
         token.level = user.level
+        token.isSuperAdmin = user.isSuperAdmin === true
       }
       return token
     },
@@ -74,6 +76,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string
         session.user.username = token.username as string
         session.user.level = token.level as AdminLevel
+        session.user.isSuperAdmin = token.isSuperAdmin === true
       }
       return session
     }

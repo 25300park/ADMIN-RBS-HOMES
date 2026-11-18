@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/require-admin";
 import prisma from "@/lib/prisma";
 import type { SearchParams } from "@/types/table";
 
@@ -44,6 +45,7 @@ function serializeCare(c: any) {
 // ── Lease Actions ────────────────────────────────────────────────
 
 export async function getLeases(params: SearchParams & { status?: string }) {
+  await requireAdmin();
   const { page = 1, limit = 15, sort = "id", order = "desc", search, status } = params;
 
   const statuses = Array.isArray(status)
@@ -86,6 +88,7 @@ export async function getLeases(params: SearchParams & { status?: string }) {
 }
 
 export async function getLeaseDetail(id: number) {
+  await requireAdmin();
   const lease = await prisma.leaseContract.findUnique({
     where: { id },
     include: {
@@ -103,6 +106,7 @@ export async function getLeaseDetail(id: number) {
 }
 
 export async function updateLeaseStatus({ id, status }: { id: number; status: string }) {
+  await requireAdmin();
   await prisma.leaseContract.update({ where: { id }, data: { status: status as any } });
   return { success: true };
 }
@@ -112,6 +116,7 @@ export async function updateLeaseStatus({ id, status }: { id: number; status: st
 export async function getPayments(
   params: SearchParams & { status?: string; month?: string }
 ) {
+  await requireAdmin();
   const { page = 1, limit = 15, sort = "dueDate", order = "desc", status, month } = params;
 
   const statuses = Array.isArray(status) ? status : status ? [status] : [];
@@ -165,6 +170,7 @@ export async function verifyPayment({
   id: number;
   verifiedById: number;
 }) {
+  await requireAdmin();
   await prisma.paymentSchedule.update({
     where: { id },
     data: { status: "PAID", verifiedAt: new Date(), verifiedById },
@@ -177,6 +183,7 @@ export async function verifyPayment({
 export async function getCareRequests(
   params: SearchParams & { serviceType?: string; status?: string }
 ) {
+  await requireAdmin();
   const { page = 1, limit = 15, sort = "id", order = "desc", serviceType, status } = params;
 
   const serviceTypes = Array.isArray(serviceType) ? serviceType : serviceType ? [serviceType] : [];
@@ -226,6 +233,7 @@ export async function updateCareRequest({
   completedAt?: string;
   price?: number;
 }) {
+  await requireAdmin();
   await prisma.careServiceRequest.update({
     where: { id },
     data: {
@@ -244,6 +252,7 @@ export async function updateCareRequest({
 export async function getCommunityPosts(
   params: SearchParams & { condoId?: number }
 ) {
+  await requireAdmin();
   const { page = 1, limit = 20, sort = "createdAt", order = "desc", condoId } = params;
 
   const where: any = condoId ? { condoId } : {};
@@ -280,16 +289,19 @@ export async function createCommunityPost(data: {
   body: string;
   isNotice: boolean;
 }) {
+  await requireAdmin();
   const post = await prisma.communityPost.create({ data });
   return { post: { ...post, createdAt: post.createdAt.toISOString() } };
 }
 
 export async function deleteCommunityPost(id: number) {
+  await requireAdmin();
   await prisma.communityPost.delete({ where: { id } });
   return { success: true };
 }
 
 export async function getCondoList() {
+  await requireAdmin();
   const condos = await prisma.condoMaster.findMany({
     select: { id: true, condoName: true },
     orderBy: { condoName: "asc" },

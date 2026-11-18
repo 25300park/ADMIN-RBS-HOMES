@@ -24,7 +24,8 @@ export async function sendEmail({ to, subject, html }: EmailOptions) {
     });
     return { success: true };
   } catch (error) {
-    console.error('Failed to send email:', error);
+    const { name, code } = error as { name?: string; code?: string | number };
+    console.error('Failed to send email:', { name, code });
     throw new Error('Failed to send email');
   }
 }

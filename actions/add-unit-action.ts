@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/require-admin";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
@@ -63,6 +64,7 @@ const UNIT_STATUS = {
 } as const;
 
 export async function registerUnit(data: RegisterUnitData) {
+  await requireAdmin();
   try {
     const session: any = await getServerSession(authOptions as any);
 
@@ -271,6 +273,7 @@ export async function registerUnit(data: RegisterUnitData) {
 
 // 유닛 상세 정보 가져오기 (수정용)
 export async function getUnitForEdit(unitId: number) {
+  await requireAdmin();
   try {
     const session: any = await getServerSession(authOptions as any);
 
@@ -332,6 +335,7 @@ export async function getUnitForEdit(unitId: number) {
 
 // 유틸리티: 스테이터스 변경 액션
 export async function updateUnitStatus(unitId: number, status: number) {
+  await requireAdmin();
   try {
     const session: any = await getServerSession(authOptions as any);
 

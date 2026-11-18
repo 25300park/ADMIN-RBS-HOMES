@@ -2,6 +2,7 @@
 
 "use server";
 
+import { requireAdmin } from "@/lib/require-admin";
 import prisma from "@/lib/prisma";
 import type { SearchParams } from "@/types/table";
 import { SCHEDULE_STATUS } from "@/utils/constants/schedule";
@@ -32,6 +33,7 @@ function getWhereClause(params: SearchParams): Record<string, any> {
 }
 
 export async function getSchedules(params: SearchParams) {
+  await requireAdmin();
   try {
     const { page = 1, limit = 10, sort = "id", order = "desc" } = params;
     const where = getWhereClause(params);
@@ -87,6 +89,7 @@ export async function updateScheduleStatus({
   title?: string;
   desc?: string;
 }) {
+  await requireAdmin();
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

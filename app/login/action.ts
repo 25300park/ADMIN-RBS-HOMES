@@ -9,23 +9,24 @@ export async function login(
 ) {
   try {
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
+      select: { password: true, isSuperAdmin: true },
     })
-    console.log(user)
     if (!user) {
       return { error: 'CREDENTIALS', message: 'Invalid username' }
     }
 
-    if (user.level !== 0) {
+    if (user.isSuperAdmin !== true) {
       return { error: 'NOTADMIN', message: 'You do not have administrator privileges' }
     }
     const isValid = await bcrypt.compare(password, user.password || '')
-    
+
     if (!isValid) {
       return { error: 'CREDENTIALS', message: 'Invalid password' }
     }
 
-    return { success: true, user }
+    // 브라우저에는 성공 여부만 돌려준다 (사용자 행, 비밀번호 해시 제외)
+    return { success: true }
 
   } catch (error) {
     console.error('Login error:', error)

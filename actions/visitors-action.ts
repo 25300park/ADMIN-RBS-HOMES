@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/require-admin";
 import prisma from "@/lib/prisma";
 import { DateFilter } from "@/types/dashboard";
 
@@ -35,6 +36,7 @@ function getDateRange(dateFilter: DateFilter) {
 }
 
 export async function getVisitorStats(dateFilter: DateFilter) {
+  await requireAdmin();
   try {
     const dateRange = getDateRange(dateFilter);
 

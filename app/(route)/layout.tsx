@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
+import { checkAdmin } from "@/lib/require-admin";
 import { redirect } from "next/navigation";
 import RouteClientLayout from "@/components/route-client-layout";
 import { MENU_ITEMS, ROUTES } from "@/utils/constants";
@@ -10,11 +9,12 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const admin = await checkAdmin();
 
-  if (!session?.user) {
+  if (!admin.ok) {
     redirect(ROUTES.LOGIN);
   }
+  const session = admin.session;
 
   const authorizedMenus = MENU_ITEMS.filter((menu) =>
     menu.allowedLevels.includes(session.user.level)

@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/require-admin";
 import prisma from "@/lib/prisma";
 import type { SearchParams } from "@/types/table";
 
@@ -53,6 +54,7 @@ function getWhereClause(params: SearchParams): Record<string, any> {
 }
 
 export async function getBanners(params: SearchParams) {
+  await requireAdmin();
   try {
     const {
       page = 1,
@@ -105,6 +107,7 @@ export async function getBanners(params: SearchParams) {
 
 // 단일 배너 조회 함수
 export async function getBanner(id: number): Promise<SerializedBanner> {
+  await requireAdmin();
   try {
     const banner = await prisma.areaBanner.findUnique({
       where: { id },
@@ -149,6 +152,7 @@ export async function createBanner(data: {
   longitude?: number; 
   fullAddress?: string;
 }) {
+  await requireAdmin();
   try {
     const banner = await prisma.areaBanner.create({
       data: {
@@ -193,6 +197,7 @@ export async function createBanner(data: {
 
 // 배너 삭제 함수
 export async function deleteBanner(id: number) {
+  await requireAdmin();
   try {
     await prisma.areaBanner.delete({
       where: { id },
@@ -226,6 +231,7 @@ export async function updateBanner({
   images?: string;
   isActive?: boolean;
 }) {
+  await requireAdmin();
   try {
     const updatedBanner = await prisma.areaBanner.update({
       where: { id },

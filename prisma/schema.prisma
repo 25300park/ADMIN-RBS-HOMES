@@ -24,6 +24,7 @@ model User {
   passwordOrigin String?   @db.VarChar(255)
   /// 0: 관리자  1: 일반유저 2: 에이전트 (면허x) 3:브로커 4: 오너  20: 프리세일 가능 에이전트 30: 프리세일가능 브로커 40: 프리세일 가능 오너
   level          Int       @default(1)
+  isSuperAdmin Boolean @default(false)
   /// 이름
   name           String?   @db.VarChar(50)
   /// 페이스북 정보

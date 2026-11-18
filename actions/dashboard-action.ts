@@ -1,6 +1,7 @@
 // actions/dashboard-action.ts
 "use server";
 
+import { requireAdmin } from "@/lib/require-admin";
 import prisma from "@/lib/prisma";
 import type {
   DashboardStats,
@@ -44,6 +45,7 @@ function getDateRange(filter: DateFilter) {
 
 // 데이터 호출 병렬 추가
 export async function getAllDashboardData(dateFilter: DateFilter) {
+  await requireAdmin();
   try {
     const [
       dashboardStats,
@@ -79,6 +81,7 @@ export async function getAllDashboardData(dateFilter: DateFilter) {
 }
 
 export async function getDashboardStats(dateFilter: DateFilter) {
+  await requireAdmin();
   try {
     const dateRange = getDateRange(dateFilter);
     const now = new Date();
@@ -158,6 +161,7 @@ export async function getDashboardStats(dateFilter: DateFilter) {
 }
 
 export async function getUnitTypeDistribution() {
+  await requireAdmin();
   try {
     const unitTypeCounts = await prisma.unit.groupBy({
       by: ["type"],
@@ -183,6 +187,7 @@ export async function getUnitTypeDistribution() {
 }
 
 export async function getPopularUnits() {
+  await requireAdmin();
   try {
     const popularUnits = await prisma.unit.findMany({
       where: {
@@ -224,6 +229,7 @@ export async function getPopularUnits() {
 }
 
 export async function getTopAgents() {
+  await requireAdmin();
   try {
     const agents = await prisma.user.findMany({
       where: {
@@ -274,6 +280,7 @@ export async function getTopAgents() {
 }
 
 export async function getUpcomingSchedules(dateFilter: DateFilter) {
+  await requireAdmin();
   try {
     const dateRange = getDateRange(dateFilter);
     const now = new Date();
@@ -360,6 +367,7 @@ export async function getUpcomingSchedules(dateFilter: DateFilter) {
 
 // 방문자 카운터 통계 함수
 export async function getVisitorStats(dateFilter: DateFilter) {
+  await requireAdmin();
   try {
     const dateRange = getDateRange(dateFilter);
 

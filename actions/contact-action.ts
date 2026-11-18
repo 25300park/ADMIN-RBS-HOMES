@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/require-admin";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
 import type { SearchParams } from "@/types/table";
@@ -49,6 +50,7 @@ function getWhereClause(params: SearchParams): Record<string, any> {
 }
 
 export async function getContacts(params: SearchParams) {
+  await requireAdmin();
   try {
     const { page = 1, limit = 10, sort = "id", order = "desc" } = params;
     const where = getWhereClause(params);
@@ -103,6 +105,7 @@ export async function getContacts(params: SearchParams) {
 }
 
 export async function getContactDetail(id: number) {
+  await requireAdmin();
   try {
     const contact = await prisma.contact.findUnique({
       where: { id },
@@ -152,6 +155,7 @@ export async function updateContactStatus({
   responseType,
   memo,
 }: ContactStatusChangeProps) {
+  await requireAdmin();
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

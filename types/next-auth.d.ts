@@ -9,6 +9,7 @@ declare module 'next-auth' {
       email: string
       username: string
       level: AdminLevel
+      isSuperAdmin: boolean
     }
   }
 
@@ -17,6 +18,7 @@ declare module 'next-auth' {
     email: string
     username: string
     level: AdminLevel
+    isSuperAdmin: boolean
   }
 }
 
@@ -26,5 +28,6 @@ declare module 'next-auth/jwt' {
     email: string
     username: string
     level: AdminLevel
+    isSuperAdmin: boolean
   }
 }
